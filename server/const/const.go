@@ -4,3 +4,6 @@ package _const
 var (
 	LicenseDate int64 // 授权到期时间
 )
+
+// LocVersion 本地版本
+const LocVersion = "1.0Bate"

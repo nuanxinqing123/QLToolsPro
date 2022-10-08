@@ -87,6 +87,8 @@ func Setup() *gin.Engine {
 			open.POST("check/token/admin", middlewares.AdminAuth(), controllers.CheckToken)
 			// 网站设置获取
 			open.GET("set/settings", controllers.GetSettings)
+			// 系统版本信息
+			open.GET("system/version", controllers.SystemVersion)
 		}
 
 		// 用户权限组
