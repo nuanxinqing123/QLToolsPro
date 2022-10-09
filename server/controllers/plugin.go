@@ -68,6 +68,7 @@ func PluginUpload(c *gin.Context) {
 	// 获取上传文件
 	file, err := c.FormFile("file")
 	if err != nil {
+		zap.L().Error("获取上传文件错误")
 		res.ResError(c, res.CodeServerBusy)
 		return
 	}
@@ -75,7 +76,7 @@ func PluginUpload(c *gin.Context) {
 	// 获取插件目录绝对路径
 	ExecPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		zap.L().Error(err.Error())
+		zap.L().Error("获取插件目录绝对路径错误：" + err.Error())
 		res.ResError(c, res.CodeServerBusy)
 		return
 	}
@@ -90,7 +91,7 @@ func PluginUpload(c *gin.Context) {
 
 	err = c.SaveUploadedFile(file, FilePath)
 	if err != nil {
-		zap.L().Error(err.Error())
+		zap.L().Error("保存文件错误：" + err.Error())
 		res.ResError(c, res.CodeServerBusy)
 		return
 	}
