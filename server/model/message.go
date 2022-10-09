@@ -24,3 +24,8 @@ type AdminMessage struct {
 	UserWxpusher []string `json:"user_wxpusher" binding:"required"`
 	Msg          string   `json:"message" binding:"required"`
 }
+
+// AdminMessageAll 管理员全体消息发送
+type AdminMessageAll struct {
+	Msg string `json:"message" binding:"required"`
+}

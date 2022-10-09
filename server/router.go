@@ -198,6 +198,8 @@ func Setup() *gin.Engine {
 				admin.GET("message/division/data", controllers.MessageDivisionData)
 				// 管理员消息群发
 				admin.POST("message/send", controllers.MessageSend)
+				// 管理员全体消息发送
+				admin.POST("message/send/all", controllers.MessageSendAll)
 			}
 
 			// 容器管理

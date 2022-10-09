@@ -65,3 +65,21 @@ func MessageSend(p *model.AdminMessage) (res.ResCode, string) {
 
 	return res.CodeMessageError, msg
 }
+
+// MessageSendAll 管理员全体消息发送
+func MessageSendAll(p *model.AdminMessageAll) (res.ResCode, string) {
+	// 查询所有以绑定WxPusherID的用户
+	var UserList []string
+
+	user := dao.GetBindWxPusherUserData()
+	for _, u := range user {
+		UserList = append(UserList, u.UserWxpusher)
+	}
+
+	b, msg := wxpusher.AdminSendMessage(UserList, p.Msg)
+	if b {
+		return res.CodeSuccess, msg
+	}
+
+	return res.CodeMessageError, msg
+}

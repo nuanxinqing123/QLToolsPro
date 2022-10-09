@@ -27,3 +27,10 @@ func GetMessageDataPage() int64 {
 	result := DB.Where("user_wxpusher <> ''").Find(&c)
 	return result.RowsAffected
 }
+
+// GetBindWxPusherUserData 获取绑定WxPusherID的用户信息
+func GetBindWxPusherUserData() []model.User {
+	var c []model.User
+	DB.Where("user_wxpusher <> ''").Find(&c)
+	return c
+}
