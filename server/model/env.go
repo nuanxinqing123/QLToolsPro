@@ -36,7 +36,7 @@ type EnvAdd struct {
 	EnvRemarks      string `json:"env_remarks"`                        // 环境变量名称备注
 	EnvQuantity     int    `json:"env_quantity"  binding:"required"`   // 环境变量数量上限
 	EnvRegex        string `json:"env_regex"`                          // 环境变量匹配正则
-	EnvMode         int    `json:"env_mode"  binding:"required"`       // 环境变量模式[1：新建模式、2：合并模式、3、更新模式]
+	EnvMode         int    `json:"env_mode"  binding:"required"`       // 环境变量模式[1：新建模式、2：更新模式]
 	EnvUpdate       string `json:"env_update"`                         // 环境变量更新匹配正则（更新模式）
 	EnvIsPlugin     bool   `json:"env_is_plugin"`                      // 环境变量是否使用插件
 	EnvPluginName   string `json:"env_plugin_name"`                    // 绑定的插件名称
@@ -52,7 +52,7 @@ type EnvUpdate struct {
 	EnvRemarks      string `json:"env_remarks"`                        // 环境变量名称备注
 	EnvQuantity     int    `json:"env_quantity" binding:"required"`    // 环境变量数量上限
 	EnvRegex        string `json:"env_regex"`                          // 环境变量匹配正则
-	EnvMode         int    `json:"env_mode" binding:"required"`        // 环境变量模式[1：新建模式、2：合并模式、3、更新模式]
+	EnvMode         int    `json:"env_mode" binding:"required"`        // 环境变量模式[1：新建模式、2：更新模式]
 	EnvUpdate       string `json:"env_update"`                         // 环境变量更新匹配正则（更新模式）
 	EnvIsPlugin     bool   `json:"env_is_plugin"`                      // 环境变量是否使用插件
 	EnvPluginName   string `json:"env_plugin_name"`                    // 绑定的插件名称

@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"syscall"
 	"time"
@@ -34,6 +35,13 @@ func main() {
 	// 加载配置文件
 	if err := settings.Init(); err != nil {
 		fmt.Printf("Viper init failed, err:%v\n", err)
+		return
+	}
+
+	// 判断注册插件文件夹
+	bol := IFPlugin()
+	if bol != true {
+		fmt.Println("自动创建插件文件夹失败, 请手动在程序根目录创建 /plugin/ordinary 和 /plugin/cron 文件夹")
 		return
 	}
 
@@ -136,4 +144,57 @@ func main() {
 	}
 
 	zap.L().Info("Service has been shut down")
+}
+
+// IFPlugin 判断并自动创建插件文件夹
+func IFPlugin() bool {
+	ExecPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		fmt.Println("[自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+		return false
+	}
+
+	_, err = os.Stat(ExecPath + "/plugin")
+	if err != nil {
+		err = os.Mkdir("plugin", 0777)
+		if err != nil {
+			fmt.Printf("Create Config Dir Error: %s", err)
+			return false
+		}
+		_, err2 := os.Stat(ExecPath + "/plugin")
+		if err2 != nil {
+			zap.L().Error(err.Error())
+			return false
+		}
+	}
+
+	_, err = os.Stat(ExecPath + "/plugin/ordinary")
+	if err != nil {
+		err = os.Mkdir("plugin/ordinary", 0777)
+		if err != nil {
+			fmt.Println("[1、自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+		_, err2 := os.Stat(ExecPath + "/plugin/ordinary")
+		if err2 != nil {
+			fmt.Println("[2、自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+	}
+
+	_, err = os.Stat(ExecPath + "/plugin/cron")
+	if err != nil {
+		err = os.Mkdir("plugin/cron", 0777)
+		if err != nil {
+			fmt.Println("[1、自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+		_, err2 := os.Stat(ExecPath + "/plugin/cron")
+		if err2 != nil {
+			fmt.Println("[2、自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+	}
+
+	return true
 }
