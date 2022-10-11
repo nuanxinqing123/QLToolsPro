@@ -270,6 +270,10 @@ func Setup() *gin.Engine {
 				admin.PUT("cd-key/batch/update", controllers.CDKEYBatchUpdate)
 				// 删除
 				admin.DELETE("cd-key/delete", controllers.CDKEYDelete)
+				// 指定用户充值(积分)
+				admin.POST("cd-key/user/recharge/integral", controllers.CDKEYUserRechargeIntegral)
+				// 指定用户充值(会员)
+				admin.POST("cd-key/user/recharge/vip", controllers.CDKEYUserRechargeVip)
 			}
 
 			// 充值数据

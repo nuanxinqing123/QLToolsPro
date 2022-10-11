@@ -25,7 +25,7 @@ func GetRegisterUserCount() int64 {
 
 // GetVIPUserCount 获取网站会员用户数量
 func GetVIPUserCount() int64 {
-	return DB.Where("is_vip = ?", true).Find(&model.User{}).RowsAffected
+	return DB.Where("is_v_ip = ?", true).Find(&model.User{}).RowsAffected
 }
 
 // GetToDayUpload 获取上传变量数量
