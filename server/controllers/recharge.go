@@ -131,7 +131,7 @@ func RechargeSearch(c *gin.Context) {
 	}
 }
 
-// CDKEYUserRechargeIntegral 指定用户充值(积分)
+// CDKEYUserRechargeIntegral 指定用户充值
 func CDKEYUserRechargeIntegral(c *gin.Context) {
 	// 获取参数
 	p := new(model.AdminRecharge)
@@ -153,38 +153,6 @@ func CDKEYUserRechargeIntegral(c *gin.Context) {
 
 	// 处理业务
 	resCode, msg := logic.CDKEYUserRechargeIntegral(p)
-	switch resCode {
-	case res.CodeCDKError:
-		// CDK错误
-		res.ResErrorWithMsg(c, res.CodeCDKError, msg)
-	case res.CodeSuccess:
-		// 充值成功
-		res.ResSuccess(c, "充值成功")
-	}
-}
-
-// CDKEYUserRechargeVip 指定用户充值(会员)
-func CDKEYUserRechargeVip(c *gin.Context) {
-	// 获取参数
-	p := new(model.AdminRecharge)
-	if err := c.ShouldBindJSON(&p); err != nil {
-		// 参数校验
-		zap.L().Error("SignUpHandle with invalid param", zap.Error(err))
-
-		// 判断err是不是validator.ValidationErrors类型
-		errs, ok := err.(validator.ValidationErrors)
-		if !ok {
-			res.ResError(c, res.CodeInvalidParam)
-			return
-		}
-
-		// 翻译错误
-		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
-		return
-	}
-
-	// 处理业务
-	resCode, msg := logic.CDKEYUserRechargeVip(p)
 	switch resCode {
 	case res.CodeCDKError:
 		// CDK错误

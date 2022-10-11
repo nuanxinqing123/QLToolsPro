@@ -29,6 +29,7 @@ type UserRecharge struct {
 
 // AdminRecharge 管理员充值
 type AdminRecharge struct {
-	UserID      string `json:"user_id" binding:"required"`
-	RechargeCDK string `json:"recharge_cdk" binding:"required"`
+	UserID         string `json:"user_id" binding:"required"`
+	RechargeType   int    `json:"recharge_type" binding:"required"`
+	RechargeNumber int    `json:"recharge_number" binding:"required"`
 }

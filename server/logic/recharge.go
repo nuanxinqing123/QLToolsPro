@@ -63,22 +63,42 @@ func UserRechargeVIP(uid any, p *model.UserRecharge) (res.ResCode, string) {
 	userData := dao.GetUserIDData(uid)
 	// 充值用户额度
 	zap.L().Debug("初始额度：" + fmt.Sprintf("%s", userData.ActivationTime))
-	switch cdkData.CdKeyValidityPeriod {
-	case 1:
-		userData.ActivationTime = time.Now().AddDate(0, 0, 1)
-	case 7:
-		userData.ActivationTime = time.Now().AddDate(0, 0, 7)
-	case 14:
-		userData.ActivationTime = time.Now().AddDate(0, 0, 14)
-	case 31:
-		userData.ActivationTime = time.Now().AddDate(0, 1, 0)
-	case 92:
-		userData.ActivationTime = time.Now().AddDate(0, 3, 0)
-	case 183:
-		userData.ActivationTime = time.Now().AddDate(0, 6, 0)
-	case 365:
-		userData.ActivationTime = time.Now().AddDate(1, 0, 0)
+	if time.Now().Unix() > userData.ActivationTime.Unix() {
+		switch cdkData.CdKeyValidityPeriod {
+		case 1:
+			userData.ActivationTime = time.Now().AddDate(0, 0, 1)
+		case 7:
+			userData.ActivationTime = time.Now().AddDate(0, 0, 7)
+		case 14:
+			userData.ActivationTime = time.Now().AddDate(0, 0, 14)
+		case 31:
+			userData.ActivationTime = time.Now().AddDate(0, 1, 0)
+		case 92:
+			userData.ActivationTime = time.Now().AddDate(0, 3, 0)
+		case 183:
+			userData.ActivationTime = time.Now().AddDate(0, 6, 0)
+		case 365:
+			userData.ActivationTime = time.Now().AddDate(1, 0, 0)
+		}
+	} else {
+		switch cdkData.CdKeyValidityPeriod {
+		case 1:
+			userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 1)
+		case 7:
+			userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 7)
+		case 14:
+			userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 14)
+		case 31:
+			userData.ActivationTime = userData.ActivationTime.AddDate(0, 1, 0)
+		case 92:
+			userData.ActivationTime = userData.ActivationTime.AddDate(0, 3, 0)
+		case 183:
+			userData.ActivationTime = userData.ActivationTime.AddDate(0, 6, 0)
+		case 365:
+			userData.ActivationTime = userData.ActivationTime.AddDate(1, 0, 0)
+		}
 	}
+
 	// 更新用户数据
 	zap.L().Debug("充值后额度：" + fmt.Sprintf("%s", userData.ActivationTime))
 	dao.UpdateUserDataSave(userData)
@@ -193,84 +213,72 @@ func RechargeSearch(s string) (res.ResCode, []model.Recharge) {
 
 // CDKEYUserRechargeIntegral 指定用户充值(积分)
 func CDKEYUserRechargeIntegral(p *model.AdminRecharge) (res.ResCode, string) {
-	// 校验CDK是否存在
-	cdkData := dao.CDKEYDataSearch(p.RechargeCDK)
-	if cdkData.CdKey == "" {
-		return res.CodeCDKError, "请检查您的CDK是否有效"
-	} else if cdkData.CdKeyState == false {
-		return res.CodeCDKError, "CDK已被使用或已失效"
-	} else if cdkData.CdKeyType != "integral" {
-		return res.CodeCDKError, "充值卡密类型错误"
-	}
-
 	// 获取用户数据
 	userData := dao.GetUserIDData(p.UserID)
 	if userData.Username == "" && userData.UserID == "" {
 		return res.CodeCDKError, "充值账户不存在"
 	}
-	// 充值用户额度
-	userData.Integral += int64(cdkData.CdKeyIntegral)
-	dao.UpdateUserIntegral(userData)
 
-	// 已使用,禁用CDK
-	cdkData.CdKeyState = false
-	go dao.UpdateFalseCDK(cdkData)
-	// 记录充值记录
-	rechargeLog := new(model.Recharge)
-	rechargeLog.RechargeUID = userData.UserID
-	rechargeLog.RechargeType = "积分"
-	rechargeLog.RechargeCDK = cdkData.CdKey
-	go dao.InsertUserRechargeLog(rechargeLog)
-	return res.CodeSuccess, "充值成功"
-}
+	if p.RechargeType == 1 {
+		// 充值用户额度
+		userData.Integral += int64(p.RechargeNumber)
+		dao.UpdateUserIntegral(userData)
 
-// CDKEYUserRechargeVip 指定用户充值(会员)
-func CDKEYUserRechargeVip(p *model.AdminRecharge) (res.ResCode, string) {
-	// 校验CDK是否存在
-	cdkData := dao.CDKEYDataSearch(p.RechargeCDK)
-	if cdkData.CdKey == "" {
-		return res.CodeCDKError, "请检查您的CDK是否有效"
-	} else if cdkData.CdKeyState == false {
-		return res.CodeCDKError, "CDK已被使用或已失效"
-	} else if cdkData.CdKeyType != "vip" {
-		return res.CodeCDKError, "充值卡密类型错误"
+		// 记录充值记录
+		rechargeLog := new(model.Recharge)
+		rechargeLog.RechargeUID = userData.UserID
+		rechargeLog.RechargeType = "积分"
+		rechargeLog.RechargeCDK = "管理员充值"
+		go dao.InsertUserRechargeLog(rechargeLog)
+		return res.CodeSuccess, "充值成功"
+	} else {
+		// 充值用户额度
+		zap.L().Debug("初始额度：" + fmt.Sprintf("%s", userData.ActivationTime))
+		if time.Now().Unix() > userData.ActivationTime.Unix() {
+			switch p.RechargeNumber {
+			case 1:
+				userData.ActivationTime = time.Now().AddDate(0, 0, 1)
+			case 7:
+				userData.ActivationTime = time.Now().AddDate(0, 0, 7)
+			case 14:
+				userData.ActivationTime = time.Now().AddDate(0, 0, 14)
+			case 31:
+				userData.ActivationTime = time.Now().AddDate(0, 1, 0)
+			case 92:
+				userData.ActivationTime = time.Now().AddDate(0, 3, 0)
+			case 183:
+				userData.ActivationTime = time.Now().AddDate(0, 6, 0)
+			case 365:
+				userData.ActivationTime = time.Now().AddDate(1, 0, 0)
+			}
+		} else {
+			switch p.RechargeNumber {
+			case 1:
+				userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 1)
+			case 7:
+				userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 7)
+			case 14:
+				userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 14)
+			case 31:
+				userData.ActivationTime = userData.ActivationTime.AddDate(0, 1, 0)
+			case 92:
+				userData.ActivationTime = userData.ActivationTime.AddDate(0, 3, 0)
+			case 183:
+				userData.ActivationTime = userData.ActivationTime.AddDate(0, 6, 0)
+			case 365:
+				userData.ActivationTime = userData.ActivationTime.AddDate(1, 0, 0)
+			}
+		}
+		// 更新用户数据
+		zap.L().Debug("充值后额度：" + fmt.Sprintf("%s", userData.ActivationTime))
+		dao.UpdateUserDataSave(userData)
+
+		// 记录充值记录
+		rechargeLog := new(model.Recharge)
+		rechargeLog.RechargeUID = userData.UserID
+		rechargeLog.RechargeType = "会员"
+		rechargeLog.RechargeCDK = "管理员充值"
+		go dao.InsertUserRechargeLog(rechargeLog)
+		return res.CodeSuccess, "充值成功"
 	}
-
-	// 获取用户数据
-	userData := dao.GetUserIDData(p.UserID)
-	if userData.Username == "" && userData.UserID == "" {
-		return res.CodeCDKError, "充值账户不存在"
-	}
-	// 充值用户额度
-	zap.L().Debug("初始额度：" + fmt.Sprintf("%s", userData.ActivationTime))
-	switch cdkData.CdKeyValidityPeriod {
-	case 1:
-		userData.ActivationTime = time.Now().AddDate(0, 0, 1)
-	case 7:
-		userData.ActivationTime = time.Now().AddDate(0, 0, 7)
-	case 14:
-		userData.ActivationTime = time.Now().AddDate(0, 0, 14)
-	case 31:
-		userData.ActivationTime = time.Now().AddDate(0, 1, 0)
-	case 92:
-		userData.ActivationTime = time.Now().AddDate(0, 3, 0)
-	case 183:
-		userData.ActivationTime = time.Now().AddDate(0, 6, 0)
-	case 365:
-		userData.ActivationTime = time.Now().AddDate(1, 0, 0)
-	}
-	// 更新用户数据
-	zap.L().Debug("充值后额度：" + fmt.Sprintf("%s", userData.ActivationTime))
-	dao.UpdateUserDataSave(userData)
-
-	// 已使用,禁用CDK
-	cdkData.CdKeyState = false
-	go dao.UpdateFalseCDK(cdkData)
-	// 记录充值记录
-	rechargeLog := new(model.Recharge)
-	rechargeLog.RechargeUID = userData.UserID
-	rechargeLog.RechargeType = "会员"
-	rechargeLog.RechargeCDK = cdkData.CdKey
-	go dao.InsertUserRechargeLog(rechargeLog)
-	return res.CodeSuccess, "充值成功"
 }
