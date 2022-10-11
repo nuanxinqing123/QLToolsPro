@@ -26,7 +26,7 @@ func GetWxPusherQRCode() (WxModel.CreateQrcodeResult, error) {
 // PluginSendMessageMass 插件发送消息群发
 // UserName：用户名 数组
 // Msg：消息内容
-func PluginSendMessageMass(UserName []string, Msg string) (bool, string) {
+func PluginSendMessageMass(UserName []string, Msg string) bool {
 	var UserWxpusher []string
 
 	for i := 0; i < len(UserName); i++ {
@@ -43,11 +43,11 @@ func PluginSendMessageMass(UserName []string, Msg string) (bool, string) {
 	if err != nil {
 		// 发送失败
 		zap.L().Error("WxPusher Send Message Error:" + err.Error())
-		return false, "发送失败"
+		return false
 	} else {
 		// 发送成功
 		zap.Any("WxPusher Return:", msgArr)
-		return true, "发送失败"
+		return true
 	}
 }
 

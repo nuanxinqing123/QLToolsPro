@@ -436,7 +436,7 @@ func UserFindPwd(p *model.UserFindPwd) (res.ResCode, string) {
 	num := rand.Intn(999999)
 	value, _ := dao.GetSetting("web_title")
 	data := "【" + value.Value + "】提示您。您的账户正在找回密码，请输入验证码：" + strconv.Itoa(num) + "。完成验证【验证码有效期：60分钟】"
-	b, _ := wxpusher.PluginSendMessageMass([]string{user.Username}, data)
+	b := wxpusher.PluginSendMessageMass([]string{user.Username}, data)
 	if b == false {
 		return res.CodeRePwdError, "验证码发送失败，请稍后尝试"
 	}

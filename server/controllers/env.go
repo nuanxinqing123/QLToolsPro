@@ -59,6 +59,7 @@ func EnvAdd(c *gin.Context) {
 		// 变量错误
 		res.ResErrorWithMsg(c, res.CodeEnvError, msg)
 	case res.CodeSuccess:
+		go panel.UpdateOnlineServerCache()
 		res.ResSuccess(c, "变量信息创建成功")
 	}
 }
@@ -90,6 +91,7 @@ func EnvUpdate(c *gin.Context) {
 		// 变量错误
 		res.ResErrorWithMsg(c, res.CodeEnvError, msg)
 	case res.CodeSuccess:
+		go panel.UpdateOnlineServerCache()
 		res.ResSuccess(c, "变量信息更新成功")
 	}
 }

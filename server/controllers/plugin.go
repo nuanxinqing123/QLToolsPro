@@ -95,7 +95,7 @@ func PluginUpload(c *gin.Context) {
 		res.ResError(c, res.CodeServerBusy)
 		return
 	}
-
+	rt := "上传成功"
 	// 刷新定时插件
 	if typeData != "ordinary" {
 		go func() {
@@ -108,9 +108,11 @@ func PluginUpload(c *gin.Context) {
 				res.ResErrorWithMsg(c, res.CodePluginError, "刷新定时插件任务失败")
 			}
 		}()
+
+		rt += rt + ", 定时插件已自动刷新"
 	}
 
-	res.ResSuccess(c, "上传成功")
+	res.ResSuccess(c, rt)
 }
 
 // PluginDelete 删除插件

@@ -59,6 +59,7 @@ func PanelAdd(c *gin.Context) {
 		// 面板错误
 		res.ResErrorWithMsg(c, res.CodePanelError, msg)
 	case res.CodeSuccess:
+		go panel.UpdateOnlineServerCache()
 		res.ResSuccess(c, "面板信息创建成功")
 	}
 }
@@ -90,6 +91,7 @@ func PanelUpdate(c *gin.Context) {
 		// 面板错误
 		res.ResErrorWithMsg(c, res.CodePanelError, msg)
 	case res.CodeSuccess:
+		go panel.UpdateOnlineServerCache()
 		res.ResSuccess(c, "面板信息更新成功")
 	}
 }
