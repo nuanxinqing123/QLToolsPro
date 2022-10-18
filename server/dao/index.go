@@ -10,7 +10,8 @@ import "QLToolsPro/server/model"
 
 // GetPanelCount 获取面板存在数量
 func GetPanelCount() int64 {
-	return DB.Find(&model.Panel{}).RowsAffected
+	var p model.Panel
+	return DB.Find(&p).RowsAffected
 }
 
 // GetEnvCount 获取变量存在数量

@@ -39,10 +39,12 @@ func main() {
 	}
 
 	// 判断注册插件文件夹
-	bol := IFPlugin()
-	if bol != true {
-		fmt.Println("自动创建插件文件夹失败, 请手动在程序根目录创建 /plugin/ordinary 和 /plugin/cron 文件夹")
-		return
+	if viper.GetString("app.mode") == "" {
+		bol := IFPlugin()
+		if bol != true {
+			fmt.Println("自动创建插件文件夹失败, 请手动在程序根目录创建 /plugin/ordinary 和 /plugin/cron 文件夹")
+			return
+		}
 	}
 
 	// 初始化日志

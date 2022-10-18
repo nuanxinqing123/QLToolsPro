@@ -68,7 +68,7 @@ func CDKEYAdd(c *model.CDK) {
 // CDKEYBatchUpdate 修改CD-KEY
 func CDKEYBatchUpdate(p *model.UpdateCDK) error {
 	zap.L().Debug("CdKeyState状态：" + fmt.Sprintf("%s", p.State))
-	cdk := new(model.CDK)
+	var cdk model.CDK
 	DB.Where("id = ?", p.ID).First(&cdk)
 	cdk.CdKeyRemarks = p.CdKeyRemarks
 	cdk.CdKeyState = p.State

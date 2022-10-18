@@ -30,7 +30,7 @@ func GetEnvDataPage() int64 {
 	return result.RowsAffected
 }
 
-// EnvAdd 创建新面板信息
+// EnvAdd 创建Env信息
 func EnvAdd(data *model.EnvAdd) error {
 	p := &model.Env{
 		EnvName:     data.EnvName,
@@ -47,24 +47,24 @@ func EnvAdd(data *model.EnvAdd) error {
 	return DB.Create(&p).Error
 }
 
-// EnvUpdate 更新面板信息
+// EnvUpdate 更新Env信息
 func EnvUpdate(data *model.EnvUpdate) error {
-	return DB.Model(&model.Env{}).Where("id = ? ", data.ID).Updates(model.Env{
-		EnvName:         data.EnvName,
-		EnvRemarks:      data.EnvRemarks,
-		EnvQuantity:     data.EnvQuantity,
-		EnvRegex:        data.EnvRegex,
-		EnvMode:         data.EnvMode,
-		EnvUpdate:       data.EnvUpdate,
-		EnvIsPlugin:     data.EnvIsPlugin,
-		EnvPluginName:   data.EnvPluginName,
-		EnvIsCharging:   data.EnvIsCharging,
-		EnvNeedIntegral: data.EnvNeedIntegral,
-		EnvTips:         data.EnvTips,
-	}).Error
+	var e model.Env
+	e.EnvName = data.EnvName
+	e.EnvRemarks = data.EnvRemarks
+	e.EnvQuantity = data.EnvQuantity
+	e.EnvRegex = data.EnvRegex
+	e.EnvMode = data.EnvMode
+	e.EnvUpdate = data.EnvUpdate
+	e.EnvIsPlugin = data.EnvIsPlugin
+	e.EnvPluginName = data.EnvPluginName
+	e.EnvIsCharging = data.EnvIsCharging
+	e.EnvNeedIntegral = data.EnvNeedIntegral
+	e.EnvTips = data.EnvTips
+	return DB.Save(&e).Error
 }
 
-// EnvDelete 删除面板信息
+// EnvDelete 删除Env信息
 func EnvDelete(data *model.EnvDelete) error {
 	return DB.Where("id IN ? ", data.ID).Delete(&model.Env{}).Error
 }

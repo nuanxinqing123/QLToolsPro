@@ -52,14 +52,15 @@ func PanelAdd(data *model.PanelAdd) error {
 
 // PanelUpdate 更新面板信息
 func PanelUpdate(p *model.PanelUpdate) error {
-	return DB.Model(&model.Panel{}).Where("id = ? ", p.ID).Updates(model.Panel{
-		PanelName:         p.PanelName,
-		PanelURL:          p.PanelURL,
-		PanelClientID:     p.PanelClientID,
-		PanelClientSecret: p.PanelClientSecret,
-		PanelEnable:       p.PanelEnable,
-		PanelVersion:      p.PanelVersion,
-	}).Error
+	var pa model.Panel
+	DB.Where("id = ? ", p.ID).First(&pa)
+	pa.PanelName = p.PanelName
+	pa.PanelURL = p.PanelURL
+	pa.PanelClientID = p.PanelClientID
+	pa.PanelClientSecret = p.PanelClientSecret
+	pa.PanelEnable = p.PanelEnable
+	pa.PanelVersion = p.PanelVersion
+	return DB.Save(&pa).Error
 }
 
 // PanelDelete 删除面板信息
