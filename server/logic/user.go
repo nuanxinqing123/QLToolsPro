@@ -483,3 +483,17 @@ func UserRePwd(p *model.UserRePwd) (res.ResCode, string) {
 
 	return res.CodeSuccess, "修改密码成功"
 }
+
+// UpdateUserVIPState 修改用户会员状态
+func UpdateUserVIPState() {
+	// 获取所有会员信息
+	user := dao.GetAllUserData()
+	for _, u := range user {
+		// 判断用户是否已到期
+		if time2.Now().Unix() > u.ActivationTime.Unix() {
+			// 已到期
+			u.IsVIP = false
+			dao.UpdateVIPState(u)
+		}
+	}
+}

@@ -153,3 +153,15 @@ func GetUserWxpusherID(uid interface{}) string {
 func UpdateUserWxpusherID(uid interface{}, wxUID string) error {
 	return DB.Model(&model.User{}).Where("user_id = ?", uid).Update("user_wxpusher", wxUID).Error
 }
+
+// GetAllUserData 获取所有用户数据
+func GetAllUserData() []model.User {
+	var u []model.User
+	DB.Find(&u)
+	return u
+}
+
+// UpdateVIPState 修改用户VIP状态
+func UpdateVIPState(u model.User) {
+	DB.Save(&u)
+}
