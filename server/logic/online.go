@@ -105,6 +105,7 @@ func OnlineServer() (res.ResCode, model.OnlineServer) {
 	} else {
 		// 返回缓存数据
 		zap.L().Debug("缓存数据")
+		zap.L().Debug(fmt.Sprintf("%s", online))
 		var os model.OnlineServer
 		err = json.Unmarshal([]byte(online.(string)), &os)
 		if err != nil {
