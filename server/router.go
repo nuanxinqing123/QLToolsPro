@@ -77,6 +77,10 @@ func Setup() *gin.Engine {
 			open.POST("user/signin", controllers.SignInHandle)
 			// 小程序登录
 			open.POST("user/applet/login", middlewares.AppAuth(), controllers.AppletLoginHandle)
+			// 登录异常-发送验证码
+			open.POST("user/abnormal/code", controllers.UserAbnormalCode)
+			// 登录异常-登录
+			open.POST("user/abnormal/signin", controllers.UserAbnormalSignin)
 			// 找回密码 - 发送验证码
 			open.POST("findpwd/message", controllers.UserFindPwd)
 			// 找回密码 - 修改密码
@@ -292,8 +296,6 @@ func Setup() *gin.Engine {
 
 			// 网站设置
 			{
-				// 设置查询
-				//admin.GET("set/settings", controllers.GetSettings)
 				// 设置修改
 				admin.PUT("set/settings", controllers.SaveSettings)
 			}

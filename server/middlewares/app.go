@@ -54,8 +54,8 @@ func CheckAppLicence() {
 	var LR LoginRes
 	// 检查授权
 	url := "https://licence.pro.6b7.org/v1/api/user/applet/get"
-	data := `{"user_name": ` + viper.GetString("licence.username") + `}`
-	ResData, err := requests.Requests("POST", url, data, "")
+	data := `{"user_name": "` + viper.GetString("licence.username") + `"}`
+	ResData, err := requests.Requests("GET", url, data, "")
 	if err != nil {
 		AppLicence = false
 	}

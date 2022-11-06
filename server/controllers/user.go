@@ -90,7 +90,15 @@ func SignInHandle(c *gin.Context) {
 	}
 
 	// 处理业务
-	resCode, msg := logic.SignIn(p)
+	var RemoteIP string
+	// 获取IP地址
+	if "127.0.0.1" == c.RemoteIP() {
+		RemoteIP = c.GetHeader("X-Real-IP")
+	} else {
+		RemoteIP = c.RemoteIP()
+	}
+
+	resCode, msg := logic.SignIn(p, RemoteIP)
 	switch resCode {
 	case res.CodeLoginError:
 		// 邮箱或者密码错误
@@ -100,8 +108,6 @@ func SignInHandle(c *gin.Context) {
 		res.ResError(c, res.CodeServerBusy)
 	case res.CodeSuccess:
 		// 登录成功,返回Token
-		UID, _ := c.Get(CtxUserIDKey)
-		go logic.RecordIPAddress(UID, c.ClientIP())
 		res.ResSuccess(c, msg)
 	}
 }
@@ -135,10 +141,20 @@ func AppletLoginHandle(c *gin.Context) {
 	case res.CodeServerBusy:
 		// 内部服务错误
 		res.ResError(c, res.CodeServerBusy)
+	case res.CodeAbnormalEnvironment:
+		// 登录环境异常
+		res.ResErrorWithMsg(c, res.CodeAbnormalEnvironment, msg)
 	case res.CodeSuccess:
 		// 登录完成
+		var RemoteIP string
 		UID, _ := c.Get(CtxUserIDKey)
-		go logic.RecordIPAddress(UID, c.ClientIP())
+		// 获取IP地址
+		if "127.0.0.1" == c.RemoteIP() {
+			RemoteIP = c.GetHeader("X-Real-IP")
+		} else {
+			RemoteIP = c.RemoteIP()
+		}
+		go dao.UpdateUserLoginIP(RemoteIP, UID)
 		res.ResSuccess(c, msg)
 	}
 }
@@ -355,6 +371,90 @@ func UserRePwd(c *gin.Context) {
 		res.ResErrorWithMsg(c, res.CodeRePwdError, msg)
 	case res.CodeSuccess:
 		// 修改成功
+		var RemoteIP string
+		UID, _ := c.Get(CtxUserIDKey)
+		// 获取IP地址
+		if "127.0.0.1" == c.RemoteIP() {
+			RemoteIP = c.GetHeader("X-Real-IP")
+		} else {
+			RemoteIP = c.RemoteIP()
+		}
+		go dao.UpdateUserLoginIP(RemoteIP, UID)
 		res.ResSuccess(c, "修改成功")
+	}
+}
+
+// UserAbnormalCode 登录异常-发送验证码
+func UserAbnormalCode(c *gin.Context) {
+	// 获取参数
+	p := new(model.UserAbnormalEmail)
+	if err := c.ShouldBindJSON(&p); err != nil {
+		// 参数校验
+		zap.L().Error("SignInHandle with invalid param", zap.Error(err))
+
+		// 判断err是不是validator.ValidationErrors类型
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			res.ResError(c, res.CodeInvalidParam)
+			return
+		}
+
+		// 翻译错误
+		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 处理业务
+	resCode, msg := logic.AbnormalEmail(p)
+	switch resCode {
+	case res.CodeAbnormalError:
+		res.ResErrorWithMsg(c, res.CodeAbnormalError, msg)
+	case res.CodeServerBusy:
+		res.ResError(c, res.CodeServerBusy)
+	case res.CodeSuccess:
+		// 发送成功
+		res.ResSuccess(c, "发送成功，请前往微信公众号【WxPusher】查看验证码")
+	}
+}
+
+// UserAbnormalSignin 登录异常-登录
+func UserAbnormalSignin(c *gin.Context) {
+	// 获取参数
+	p := new(model.UserAbnormalSignin)
+	if err := c.ShouldBindJSON(&p); err != nil {
+		// 参数校验
+		zap.L().Error("SignInHandle with invalid param", zap.Error(err))
+
+		// 判断err是不是validator.ValidationErrors类型
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			res.ResError(c, res.CodeInvalidParam)
+			return
+		}
+
+		// 翻译错误
+		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 处理业务
+	var RemoteIP string
+	// 获取IP地址
+	if "127.0.0.1" == c.RemoteIP() {
+		RemoteIP = c.GetHeader("X-Real-IP")
+	} else {
+		RemoteIP = c.RemoteIP()
+	}
+
+	resCode, msg := logic.AbnormalSignin(p, RemoteIP)
+	switch resCode {
+	case res.CodeAbnormalError:
+		// 修改密码错误
+		res.ResErrorWithMsg(c, res.CodeAbnormalError, msg)
+	case res.CodeServerBusy:
+		res.ResError(c, res.CodeServerBusy)
+	case res.CodeSuccess:
+		// 登录成功
+		res.ResSuccess(c, msg)
 	}
 }

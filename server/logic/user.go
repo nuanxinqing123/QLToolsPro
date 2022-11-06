@@ -31,6 +31,20 @@ import (
 // 设置自带的store
 var store = base64Captcha.DefaultMemStore
 
+// IP 地址序列化
+type location struct {
+	Country   string `json:"country"`
+	ShortName string `json:"short_name"`
+	Province  string `json:"province"`
+	City      string `json:"city"`
+	Area      string `json:"area"`
+	Isp       string `json:"isp"`
+	Net       string `json:"net"`
+	Ip        string `json:"ip"`
+	Code      int    `json:"code"`
+	Desc      string `json:"desc"`
+}
+
 // CaptMake 生成验证码
 func CaptMake() (id, b64s string, err error) {
 	var driver base64Captcha.Driver
@@ -132,7 +146,7 @@ func SignUp(p *model.UserSignUp) (res.ResCode, string) {
 }
 
 // SignIn 登录业务
-func SignIn(p *model.UserSignIn) (res.ResCode, string) {
+func SignIn(p *model.UserSignIn, RemoteIP string) (res.ResCode, string) {
 	// 检查验证码是否正确
 	if !CaptVerify(p.Id, p.Capt) {
 		return res.CodeLoginError, "验证码错误"
@@ -156,12 +170,29 @@ func SignIn(p *model.UserSignIn) (res.ResCode, string) {
 		if user.Password != Sha1.Sha1(oPassword) {
 			return res.CodeLoginError, "密码错误"
 		} else {
+			// 密码正确, 校验是否异地登录
+			if user.LoginIP != "" {
+				b1, b2 := CheckIf(user.LoginIP, RemoteIP)
+				if b2 {
+					return res.CodeServerBusy, "服务繁忙"
+				} else {
+					if !b1 {
+						// 异地登录
+						return res.CodeAbnormalEnvironment, "账户登录环境异常"
+					}
+				}
+			}
+
 			// 密码正确, 返回生成的Token（userSecret：密码前六位）
 			token, err := jwt.GenToken(user.UserID, user.Password[:6])
 			if err != nil {
 				zap.L().Error("An error occurred in token generation, err:", zap.Error(err))
 				return res.CodeServerBusy, "服务繁忙"
 			}
+
+			// 记录登录IP
+			go dao.UpdateUserLoginIP(RemoteIP, user.UserID)
+
 			return res.CodeSuccess, token
 		}
 	}
@@ -255,44 +286,6 @@ func AppletLogin(p *model.AppletLogin) (res.ResCode, string) {
 		}
 		return res.CodeSuccess, token
 	}
-}
-
-// RecordIPAddress 记录用户登录地址
-func RecordIPAddress(uid interface{}, ip string) {
-	time2.Sleep(time2.Minute)
-	// 记录格式 时间 - IP地址 - IP定位 - ISP运营商
-	time := timeTools.SwitchTimeStampToDataYearNowTome(time2.Now().Unix())
-
-	// 查询IP地址
-	url := "https://ip.useragentinfo.com/json?ip=" + ip
-	addr, err := requests.Requests("GET", url, "", "")
-	if err != nil {
-		return
-	}
-
-	// 序列化
-	type location struct {
-		Country   string `json:"country"`
-		ShortName string `json:"short_name"`
-		Province  string `json:"province"`
-		City      string `json:"city"`
-		Area      string `json:"area"`
-		Isp       string `json:"isp"`
-		Net       string `json:"net"`
-		Ip        string `json:"ip"`
-		Code      int    `json:"code"`
-		Desc      string `json:"desc"`
-	}
-	var l location
-	// 数据绑定
-	err = json.Unmarshal(addr, &l)
-	if err != nil {
-		zap.L().Error(err.Error())
-	}
-
-	data := time + "@" + ip + "@" + l.Country + l.Province + l.City + "@" + "运营商：" + l.Isp
-	// 储存记录
-	dao.UpdateUserIPData(uid, data)
 }
 
 // GetUserOneData 用户信息：获取
@@ -494,6 +487,167 @@ func UpdateUserVIPState() {
 			// 已到期
 			u.IsVIP = false
 			dao.UpdateVIPState(u)
+		}
+	}
+}
+
+// CheckIf 检查是否属于异地登录
+func CheckIf(ip1, ip2 string) (bool, bool) {
+	/*
+		ip1：原始IP
+		ip2：登录IP
+		bool1：是否异地登录
+		bool2：是否解析出错
+	*/
+
+	// 查询IP地址
+	url1 := "https://ip.useragentinfo.com/json?ip=" + ip1
+	addr1, err := requests.Requests("GET", url1, "", "")
+	if err != nil {
+		return false, true
+	}
+
+	var l1 location
+	var l2 location
+	// 数据绑定
+	err = json.Unmarshal(addr1, &l1)
+	if err != nil {
+		zap.L().Error(err.Error())
+		return false, true
+	}
+
+	url2 := "https://ip.useragentinfo.com/json?ip=" + ip2
+	addr2, err := requests.Requests("GET", url2, "", "")
+	if err != nil {
+		return false, true
+	}
+	// 数据绑定
+	err = json.Unmarshal(addr2, &l2)
+	if err != nil {
+		zap.L().Error(err.Error())
+		return false, true
+	}
+
+	if l1.Province == l2.Province {
+		return true, false
+	} else {
+		return false, false
+	}
+}
+
+// AbnormalEmail 登录异常 - 发送验证码
+func AbnormalEmail(p *model.UserAbnormalEmail) (res.ResCode, string) {
+	// 判断是否已存在账户
+	result, user := dao.GetUserNameData(p.UserName)
+	if result == false {
+		return res.CodeAbnormalError, "用户不存在"
+	}
+
+	// 缓存查询Token
+	uTk, err := gcache.GetCache(user.Username + "login")
+	if err != nil {
+		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
+		return res.CodeServerBusy, "业务繁忙"
+	}
+
+	// 序列化字符串
+	var f model.CacheRecordPwd
+	err = json.Unmarshal([]byte(uTk.(string)), &f)
+	if err != nil {
+		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
+		return res.CodeServerBusy, "业务繁忙"
+	}
+	if f.Code != "" && f.UserId != "" {
+		return res.CodeAbnormalError, "验证码未过期，请勿重复发送"
+	}
+
+	// 生成验证码, 发送邮件
+	rand.Seed(time2.Now().UnixNano())
+	bytes := make([]byte, 5)
+	for i := 0; i < 5; i++ {
+		b := rand.Intn(26) + 65
+		bytes[i] = byte(b)
+	}
+	zap.L().Debug("生成验证码：" + string(bytes))
+
+	str := "您的登录验证码为：" + string(bytes) + "， (5分钟内有效，本邮件由系统自动发出，请勿直接回复)"
+	zap.L().Debug("str地址：" + str)
+	var uw []string
+	uw = append(uw, user.UserWxpusher)
+	b, msg := wxpusher.AdminSendMessage(uw, str)
+	if !b {
+		zap.L().Error("[WxPusher]发送失败，原因：" + msg)
+		return res.CodeAbnormalError, "验证码发送失败，请稍等片刻再尝试"
+	}
+
+	// 发送成功，数据存入缓存
+	f.Code = string(bytes)
+	f.UserId = user.UserID
+	v, err := json.Marshal(f)
+	if err != nil {
+		return res.CodeAbnormalError, "邮件发送失败，请稍等片刻再尝试"
+	}
+	go gcache.TimingCache(user.Username+"login", string(v), time2.Minute*5)
+
+	// 返回
+	return res.CodeSuccess, "验证码发送成功"
+}
+
+// AbnormalSignin 登录异常 - 登录
+func AbnormalSignin(p *model.UserAbnormalSignin, RemoteIP string) (res.ResCode, string) {
+	// 缓存查询Token
+	uTk, err := gcache.GetCache(p.Username + "login")
+	if err != nil {
+		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
+		return res.CodeServerBusy, "业务繁忙"
+	}
+
+	// 序列化字符串
+	var f model.CacheRecordPwd
+	err = json.Unmarshal([]byte(uTk.(string)), &f)
+	if err != nil {
+		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
+		return res.CodeServerBusy, "业务繁忙"
+	}
+	if f.Code != "" && f.UserId != "" {
+		return res.CodeAbnormalError, "验证码未过期，请勿重复发送"
+	}
+
+	if p.VfCode != f.Code {
+		return res.CodeAbnormalError, "验证码错误"
+	}
+
+	// 登录验证, 检查用户名是否存在
+	result, user := dao.GetUserNameData(p.Username)
+	if result == false {
+		// 不存在
+		return res.CodeLoginError, "用户名不存在"
+	} else {
+		// 检查用户是否被封禁
+		if user.IsState == false {
+			return res.CodeAbnormalError, "账户已被封禁"
+		}
+
+		// 邮箱存在,记录传入密码
+		oPassword := p.Password
+
+		// 判断密码是否正确
+		if user.Password != Sha1.Md5(oPassword) {
+			return res.CodeAbnormalError, "密码错误"
+		} else {
+			// 密码正确, 返回生成的Token
+			token, err := jwt.GenToken(user.UserID, user.Password[:6])
+			if err != nil {
+				zap.L().Error("An error occurred in token generation, err:", zap.Error(err))
+				return res.CodeServerBusy, "服务繁忙"
+			}
+
+			// 记录登录IP
+			go dao.UpdateUserLoginIP(RemoteIP, user.UserID)
+			// 删除Redis中的验证码
+			go gcache.DeleteCache(p.Username + "login")
+
+			return res.CodeSuccess, token
 		}
 	}
 }

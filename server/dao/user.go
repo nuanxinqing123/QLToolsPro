@@ -89,11 +89,12 @@ func GetUserAppOpenIDData(openid string) model.User {
 	return user
 }
 
-// UpdateUserIPData 修改用户登录信息
-func UpdateUserIPData(uid interface{}, data string) {
-	DB.Model(&model.User{}).Where("user_id = ? ", uid).Updates(model.User{
-		LoginIP: data,
-	})
+// UpdateUserLoginIP 更新用户登录IP地址
+func UpdateUserLoginIP(ip string, uid interface{}) {
+	var u model.User
+	DB.Where("user_id = ?", uid).First(&u)
+	u.LoginIP = ip
+	DB.Save(&u)
 }
 
 // GetDivisionUserData 条件查询用户数据

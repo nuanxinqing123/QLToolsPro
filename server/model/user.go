@@ -115,3 +115,15 @@ type UserRePwd struct {
 	Code     string `json:"code" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
+
+// UserAbnormalEmail 登录异常 - 发送验证码
+type UserAbnormalEmail struct {
+	UserName string `json:"username" binding:"required"`
+}
+
+// UserAbnormalSignin 登录异常 - 登录
+type UserAbnormalSignin struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	VfCode   string `json:"id" binding:"required"`
+}
