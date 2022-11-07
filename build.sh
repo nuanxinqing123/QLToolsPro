@@ -1,1 +1,0 @@
-xgo -out QLToolsPro --targets=linux/amd64 ./
