@@ -1,0 +1,1 @@
+btpython /www/server/panel/pyenv/lib/python3.7/site-packages/sqlite_web/sqlite_web.py --host 192.168.1.121 --port 35355 ./app.db
