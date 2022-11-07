@@ -544,53 +544,42 @@ func AbnormalEmail(p *model.UserAbnormalEmail) (res.ResCode, string) {
 	}
 
 	// 缓存查询Token
-	uTk, err := gcache.GetCache(user.Username + "login")
+	_, err := gcache.GetCache(user.Username + "login")
 	if err != nil {
-		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
-		return res.CodeServerBusy, "业务繁忙"
-	}
+		var f model.CacheRecordPwd
 
-	// 序列化字符串
-	var f model.CacheRecordPwd
-	err = json.Unmarshal([]byte(uTk.(string)), &f)
-	if err != nil {
-		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
-		return res.CodeServerBusy, "业务繁忙"
-	}
-	if f.Code != "" && f.UserId != "" {
-		return res.CodeAbnormalError, "验证码未过期，请勿重复发送"
-	}
+		// 生成验证码, 发送邮件
+		rand.Seed(time2.Now().UnixNano())
+		bytes := make([]byte, 5)
+		for i := 0; i < 5; i++ {
+			b := rand.Intn(26) + 65
+			bytes[i] = byte(b)
+		}
+		zap.L().Debug("生成验证码：" + string(bytes))
 
-	// 生成验证码, 发送邮件
-	rand.Seed(time2.Now().UnixNano())
-	bytes := make([]byte, 5)
-	for i := 0; i < 5; i++ {
-		b := rand.Intn(26) + 65
-		bytes[i] = byte(b)
-	}
-	zap.L().Debug("生成验证码：" + string(bytes))
+		str := "您的登录验证码为：" + string(bytes) + "， (5分钟内有效，本邮件由系统自动发出，请勿直接回复)"
+		zap.L().Debug("str地址：" + str)
+		var uw []string
+		uw = append(uw, user.UserWxpusher)
+		b, msg := wxpusher.AdminSendMessage(uw, str)
+		if !b {
+			zap.L().Error("[WxPusher]发送失败，原因：" + msg)
+			return res.CodeAbnormalError, "验证码发送失败，请稍等片刻再尝试"
+		}
 
-	str := "您的登录验证码为：" + string(bytes) + "， (5分钟内有效，本邮件由系统自动发出，请勿直接回复)"
-	zap.L().Debug("str地址：" + str)
-	var uw []string
-	uw = append(uw, user.UserWxpusher)
-	b, msg := wxpusher.AdminSendMessage(uw, str)
-	if !b {
-		zap.L().Error("[WxPusher]发送失败，原因：" + msg)
-		return res.CodeAbnormalError, "验证码发送失败，请稍等片刻再尝试"
-	}
+		// 发送成功，数据存入缓存
+		f.Code = string(bytes)
+		f.UserId = user.UserID
+		v, err := json.Marshal(f)
+		if err != nil {
+			return res.CodeAbnormalError, "邮件发送失败，请稍等片刻再尝试"
+		}
+		go gcache.TimingCache(user.Username+"login", string(v), time2.Minute*5)
 
-	// 发送成功，数据存入缓存
-	f.Code = string(bytes)
-	f.UserId = user.UserID
-	v, err := json.Marshal(f)
-	if err != nil {
-		return res.CodeAbnormalError, "邮件发送失败，请稍等片刻再尝试"
+		// 返回
+		return res.CodeSuccess, "验证码发送成功"
 	}
-	go gcache.TimingCache(user.Username+"login", string(v), time2.Minute*5)
-
-	// 返回
-	return res.CodeSuccess, "验证码发送成功"
+	return res.CodeAbnormalError, "存在未过期验证码，请勿重复发送"
 }
 
 // AbnormalSignin 登录异常 - 登录
@@ -598,19 +587,16 @@ func AbnormalSignin(p *model.UserAbnormalSignin, RemoteIP string) (res.ResCode, 
 	// 缓存查询Token
 	uTk, err := gcache.GetCache(p.Username + "login")
 	if err != nil {
-		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
-		return res.CodeServerBusy, "业务繁忙"
+		zap.L().Error("[登录异常-登录]失败，原因：" + err.Error())
+		return res.CodeAbnormalError, "暂无登录验证码"
 	}
 
 	// 序列化字符串
 	var f model.CacheRecordPwd
 	err = json.Unmarshal([]byte(uTk.(string)), &f)
 	if err != nil {
-		zap.L().Error("[登录异常-发送验证码]失败，原因：" + err.Error())
+		zap.L().Error("[登录异常-登录]失败，原因：" + err.Error())
 		return res.CodeServerBusy, "业务繁忙"
-	}
-	if f.Code != "" && f.UserId != "" {
-		return res.CodeAbnormalError, "验证码未过期，请勿重复发送"
 	}
 
 	if p.VfCode != f.Code {
@@ -632,7 +618,7 @@ func AbnormalSignin(p *model.UserAbnormalSignin, RemoteIP string) (res.ResCode, 
 		oPassword := p.Password
 
 		// 判断密码是否正确
-		if user.Password != Sha1.Md5(oPassword) {
+		if user.Password != Sha1.Sha1(oPassword) {
 			return res.CodeAbnormalError, "密码错误"
 		} else {
 			// 密码正确, 返回生成的Token
@@ -644,7 +630,7 @@ func AbnormalSignin(p *model.UserAbnormalSignin, RemoteIP string) (res.ResCode, 
 
 			// 记录登录IP
 			go dao.UpdateUserLoginIP(RemoteIP, user.UserID)
-			// 删除Redis中的验证码
+			// 删除缓存中的验证码
 			go gcache.DeleteCache(p.Username + "login")
 
 			return res.CodeSuccess, token

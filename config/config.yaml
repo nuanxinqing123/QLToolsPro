@@ -6,10 +6,10 @@ app:
   port: 6600
 
 # ======================================= 授权设置区域 ===========================================
-# 授权购买地址：
-# 授权激活地址：
+# 授权购买地址：https://pay.6b7.org
+# 授权激活地址：https://licence.pro.6b7.org
 # 填写注册的账户信息 [username: 用户名、password：密码、aqCode：安全码]
-#licence: "ADM88EE7142FA1095A17F8BF33589DF6"
+# 安全码可以自定义设置，主要目的是在授权中心做验证
 licence:
   username: "nuanxinqing"
   password: "136729880"

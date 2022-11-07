@@ -100,6 +100,9 @@ func SignInHandle(c *gin.Context) {
 
 	resCode, msg := logic.SignIn(p, RemoteIP)
 	switch resCode {
+	case res.CodeAbnormalEnvironment:
+		// 登录环境异常
+		res.ResErrorWithMsg(c, res.CodeAbnormalEnvironment, msg)
 	case res.CodeLoginError:
 		// 邮箱或者密码错误
 		res.ResErrorWithMsg(c, res.CodeLoginError, msg)
