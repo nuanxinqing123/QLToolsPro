@@ -27,9 +27,3 @@ wechat_applet:
   appid: "wx75c058d38a81a2fd"
   # 小程序 appSecret
   secret: "4fce7ded4778265f1a5a0a1f9edca366"
-
-# 雪花ID
-snowflake:
-  # 起始日期
-  start_time: "2022-08-17"
-  machine_id: 1
