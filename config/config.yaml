@@ -15,6 +15,7 @@ licence:
   password: "136729880"
   aqCode: "136729880"
 
+# =============== 以下内容修改无需重启程序 ===================
 # ======================================= WxPusher 通知设置区域 ===========================================
 # 此处填你申请的 appToken. 官方文档：https://wxpusher.zjiecode.com/docs
 # WP_APP_TOKEN 可在管理台查看: https://wxpusher.zjiecode.com/admin/main/app/appToken
