@@ -1,4 +1,5 @@
-FROM  alpine:3.15 AS builder
+#FROM  alpine:3.15 AS builder
+FROM  golang:alpine3.16 AS builder
 
 ARG TARGETARCH
 
@@ -24,6 +25,7 @@ COPY . .
 RUN \
   #go-bindata -o=bindata/bindata.go -pkg=bindata ./assets/... && \
   go build -ldflags '-linkmode external -s -w -extldflags "-static"' -o QLToolsPro-linux-$TARGETARCH
+  # go build -ldflags '-linkmode external -s -w -extldflags "-static"' -o QLTools-linux-$TARGETARCH
 
 
 # FROM alpine:3.15
