@@ -15,11 +15,11 @@ RUN \
   #sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
   apk add --no-cache --update go go-bindata g++ ca-certificates tzdata
 
-COPY ./go.mod ./
-COPY ./go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 RUN go mod tidy
 
-COPY . .
+COPY .. .
 
 # 打包项目文件
 RUN \

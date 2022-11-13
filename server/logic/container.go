@@ -14,7 +14,7 @@ import (
 	res "QLToolsPro/utils/response"
 	"encoding/json"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"io"
 	"os"
 	"strconv"
 	"time"
@@ -160,7 +160,8 @@ func ContainerBackup(p *model.ContainerOperationOne) (res.ResCode, string) {
 	}
 
 	// 保存数据
-	err = ioutil.WriteFile("backup.json", b, 0777)
+	err = os.WriteFile("backup.json", b, 0777)
+	// err = ioutil.WriteFile("backup.json", b, 0777)
 	if err != nil {
 		// 记录错误
 		zap.L().Error("[容器：备份]序列化数据失败:" + err.Error())
@@ -203,7 +204,7 @@ func ContainerRestore(id string) (res.ResCode, string) {
 	}(file)
 
 	// 配置读取
-	byteData, err2 := ioutil.ReadAll(file)
+	byteData, err2 := io.ReadAll(file)
 	if err2 != nil {
 		// 读取配置时发生错误
 		zap.L().Error("[容器：恢复]读取备份文件失败:" + err.Error())
@@ -353,7 +354,7 @@ func DelBackupJSON() {
 	}
 }
 
-//ContainerErrorContent 获取十条日志记录
+// ContainerErrorContent 获取十条日志记录
 func ContainerErrorContent() ([]model.OperationRecord, res.ResCode) {
 	// 查询记录
 	info := dao.ContainerErrorContent()

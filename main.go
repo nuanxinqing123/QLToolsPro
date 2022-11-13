@@ -198,5 +198,19 @@ func IFPlugin() bool {
 		}
 	}
 
+	_, err = os.Stat(ExecPath + "/plugin/front")
+	if err != nil {
+		err = os.Mkdir("plugin/front", 0777)
+		if err != nil {
+			fmt.Println("[1、自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+		_, err2 := os.Stat(ExecPath + "/plugin/front")
+		if err2 != nil {
+			fmt.Println("[2、自动创建插件文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+	}
+
 	return true
 }
