@@ -212,5 +212,5 @@ func UserEnvDataDelete(c *gin.Context) {
 // UserRefresh 手动刷新首页缓存数据
 func UserRefresh(c *gin.Context) {
 	go panel.UpdateOnlineServerCache()
-	res.ResSuccess(c, "变量信息删除成功")
+	res.ResSuccess(c, "缓存刷新成功")
 }
