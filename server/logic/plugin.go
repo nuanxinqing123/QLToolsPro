@@ -11,7 +11,7 @@ import (
 	"QLToolsPro/server/model"
 	res "QLToolsPro/utils/response"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -33,7 +33,7 @@ func PluginOrdinaryData() (res.ResCode, []model.FileInfo) {
 	// 读取目录
 	var fl []model.FileInfo
 	var fi model.FileInfo
-	files, _ := ioutil.ReadDir(PluginPath)
+	files, _ := os.ReadDir(PluginPath)
 
 	// 读取插件信息
 	for _, f := range files {
@@ -55,7 +55,7 @@ func PluginOrdinaryData() (res.ResCode, []model.FileInfo) {
 				zap.L().Error("文件名：" + f.Name() + "  关闭文件失败，原因：" + err3.Error())
 			}
 		}(fd)
-		v, _ := ioutil.ReadAll(fd)
+		v, _ := io.ReadAll(fd)
 		data := string(v)
 		PluginName := ""
 		if regs := regexp.MustCompile(`\[name:(.+)]`).FindStringSubmatch(data); len(regs) != 0 {
@@ -84,7 +84,7 @@ func PluginCronData() (res.ResCode, []model.FileCronInfo) {
 	// 读取目录
 	var fl []model.FileCronInfo
 	var fi model.FileCronInfo
-	files, _ := ioutil.ReadDir(PluginPath)
+	files, _ := os.ReadDir(PluginPath)
 
 	// 读取插件信息
 	for _, f := range files {
@@ -106,7 +106,7 @@ func PluginCronData() (res.ResCode, []model.FileCronInfo) {
 				zap.L().Error("文件名：" + f.Name() + "  关闭文件失败" + err3.Error())
 			}
 		}(fd)
-		v, _ := ioutil.ReadAll(fd)
+		v, _ := io.ReadAll(fd)
 		data := string(v)
 		PluginName := ""
 		CronTime := ""

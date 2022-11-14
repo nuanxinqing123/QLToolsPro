@@ -17,7 +17,6 @@ import (
 	"QLToolsPro/utils/snowflake"
 	"QLToolsPro/utils/timeTools"
 	"QLToolsPro/utils/wxpusher"
-	"encoding/json"
 	"github.com/mojocn/base64Captcha"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"

@@ -9,7 +9,7 @@ package requests
 import (
 	"fmt"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -36,7 +36,7 @@ func Requests(method, url, data, token string) ([]byte, error) {
 		zap.L().Error(err.Error())
 		return []byte(""), err
 	}
-	bodyText, err := ioutil.ReadAll(resp.Body)
+	bodyText, err := io.ReadAll(resp.Body)
 	if err != nil {
 		zap.L().Error(err.Error())
 		return []byte(""), err

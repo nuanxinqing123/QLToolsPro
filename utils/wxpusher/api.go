@@ -3,13 +3,15 @@ package wxpusher
 import (
 	"QLToolsPro/utils/wxpusher/model"
 	"bytes"
-	"encoding/json"
 	"errors"
-	"io/ioutil"
+	jsoniter "github.com/json-iterator/go"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // URLBase 接口域名
 const URLBase = "http://wxpusher.zjiecode.com"
@@ -41,7 +43,7 @@ func SendMessage(message *model.Message) ([]model.SendMsgResult, error) {
 		return msgResults, model.NewSDKError(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return msgResults, model.NewSDKError(err)
 	}
@@ -74,7 +76,7 @@ func QueryMessageStatus(messageID int) (model.Result, error) {
 		return result, model.NewSDKError(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return result, model.NewSDKError(err)
 	}
@@ -101,7 +103,7 @@ func CreateQrcode(qrcode *model.Qrcode) (model.CreateQrcodeResult, error) {
 		return qrResult, model.NewSDKError(err)
 	}
 	defer func() { _ = resp.Body.Close() }()
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return qrResult, model.NewSDKError(err)
 	}
@@ -139,7 +141,7 @@ func QueryWxUser(appToken string, page, pageSize int) (model.QueryWxUserResult, 
 	if err != nil {
 		return queryResult, model.NewSDKError(err)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return queryResult, model.NewSDKError(err)
 	}

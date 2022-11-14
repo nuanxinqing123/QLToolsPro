@@ -12,16 +12,18 @@ import (
 	"QLToolsPro/utils/panel"
 	"QLToolsPro/utils/requests"
 	"QLToolsPro/utils/wxpusher"
-	"encoding/json"
 	"fmt"
 	"github.com/dop251/goja"
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type jsonData struct {
 	Bool bool   `json:"bool"`
@@ -50,7 +52,7 @@ func RunPlugin(filename, env string) (bool, string) {
 		zap.L().Error("[普通插件]：" + err.Error())
 		return false, ""
 	}
-	data, err := ioutil.ReadAll(f)
+	data, err := io.ReadAll(f)
 	if err != nil {
 		zap.L().Error("[普通插件]：" + err.Error())
 		return false, ""
@@ -128,7 +130,7 @@ func RunCronPlugin(filename, envName string) {
 		zap.L().Error("[定时插件]：" + err.Error())
 		return
 	}
-	data, err := ioutil.ReadAll(f)
+	data, err := io.ReadAll(f)
 	if err != nil {
 		zap.L().Error("[定时插件]：" + err.Error())
 		return

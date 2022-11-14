@@ -13,12 +13,14 @@ import (
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
 	"QLToolsPro/utils/timeTools"
-	"encoding/json"
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 	"strconv"
 	time2 "time"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // StringHTTP 处理URL地址结尾的斜杠
 func StringHTTP(url string) string {

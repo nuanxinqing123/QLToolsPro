@@ -150,36 +150,36 @@ func ContainerBackupDownload(c *gin.Context) {
 }
 
 // ContainerSynchronization config.sh 同步
-//func ContainerSynchronization(c *gin.Context) {
-//	// 获取参数
-//	p := new(model.ContainerOperationMass)
-//	if err := c.ShouldBindJSON(&p); err != nil {
-//		// 参数校验
-//		zap.L().Error("SignInHandle with invalid param", zap.Error(err))
-//
-//		// 判断err是不是validator.ValidationErrors类型
-//		errs, ok := err.(validator.ValidationErrors)
-//		if !ok {
-//			res.ResError(c, res.CodeInvalidParam)
-//			return
-//		}
-//
-//		// 翻译错误
-//		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
-//		return
-//	}
-//
-//	// 处理业务
-//	resCode, msg := logic.ContainerSynchronization(p)
-//	switch resCode {
-//	case res.CodeContainerError:
-//		res.ResErrorWithMsg(c, res.CodeContainerError, msg)
-//	case res.CodeServerBusy:
-//		res.ResError(c, res.CodeServerBusy)
-//	case res.CodeSuccess:
-//		res.ResSuccess(c, "操作已进入任务队列, 请稍后前往青龙面板查看结果")
-//	}
-//}
+func ContainerSynchronization(c *gin.Context) {
+	// 获取参数
+	p := new(model.ContainerOperationMass)
+	if err := c.ShouldBindJSON(&p); err != nil {
+		// 参数校验
+		zap.L().Error("SignInHandle with invalid param", zap.Error(err))
+
+		// 判断err是不是validator.ValidationErrors类型
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			res.ResError(c, res.CodeInvalidParam)
+			return
+		}
+
+		// 翻译错误
+		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 处理业务
+	resCode, msg := logic.ContainerSynchronization(p)
+	switch resCode {
+	case res.CodeContainerError:
+		res.ResErrorWithMsg(c, res.CodeContainerError, msg)
+	case res.CodeServerBusy:
+		res.ResError(c, res.CodeServerBusy)
+	case res.CodeSuccess:
+		res.ResSuccess(c, "操作已进入任务队列, 请稍后前往青龙面板查看结果")
+	}
+}
 
 // ContainerErrorContent 容器：十条日志
 func ContainerErrorContent(c *gin.Context) {

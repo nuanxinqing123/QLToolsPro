@@ -7,11 +7,10 @@
 package goja
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/beego/beego/v2/adapter/httplib"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -129,11 +128,11 @@ func request(wt interface{}, handles ...func(error, map[string]interface{}, inte
 	if err == nil {
 		rspObj["status"] = rsp.StatusCode
 		rspObj["statusCode"] = rsp.StatusCode
-		data, _ := ioutil.ReadAll(rsp.Body)
+		data, _ := io.ReadAll(rsp.Body)
 		if isJson {
 			zap.L().Debug("返回数据类型：JSON")
 			var v interface{}
-			json.Unmarshal(data, &v)
+			_ = json.Unmarshal(data, &v)
 			bd = v
 		} else {
 			zap.L().Debug("返回数据类型：Not Is JSON")

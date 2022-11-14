@@ -12,10 +12,13 @@ import (
 	"QLToolsPro/utils/panel"
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 	"strconv"
 )
+
+// 代替官方JSON库
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // EnvDivisionData 变量分页查询
 func EnvDivisionData(page, quantity string) (res.ResCode, model.EnvPageData) {

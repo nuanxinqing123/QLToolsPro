@@ -50,6 +50,7 @@ func EnvAdd(data *model.EnvAdd) error {
 // EnvUpdate 更新Env信息
 func EnvUpdate(data *model.EnvUpdate) error {
 	var e model.Env
+	DB.Where("id = ?", data.ID).First(&e)
 	e.EnvName = data.EnvName
 	e.EnvRemarks = data.EnvRemarks
 	e.EnvQuantity = data.EnvQuantity

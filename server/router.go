@@ -194,6 +194,8 @@ func Setup() *gin.Engine {
 				admin.PUT("env/update", controllers.EnvUpdate)
 				// 变量删除
 				admin.DELETE("env/delete", controllers.EnvDelete)
+				// 手动刷新首页缓存数据
+				admin.PUT("env/refresh", controllers.UserRefresh)
 			}
 
 			// 消息推送管理
@@ -219,7 +221,7 @@ func Setup() *gin.Engine {
 				// 备份数据下载
 				admin.GET("container/backup/download", controllers.ContainerBackupDownload)
 				// config.sh 同步
-				//admin.POST("container/synchronization", controllers.ContainerSynchronization)
+				admin.POST("container/synchronization", controllers.ContainerSynchronization)
 				// 任务错误记录查询
 				admin.GET("container/error/content", controllers.ContainerErrorContent)
 			}

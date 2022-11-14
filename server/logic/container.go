@@ -12,7 +12,7 @@ import (
 	"QLToolsPro/utils/panel"
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
-	"encoding/json"
+	"fmt"
 	"go.uber.org/zap"
 	"io"
 	"os"
@@ -227,59 +227,64 @@ func ContainerRestore(id string) (res.ResCode, string) {
 }
 
 // ContainerSynchronization config.sh 同步
-//func ContainerSynchronization(p *model.ContainerOperationMass) (res.ResCode, string) {
-//	// 根据ID查询服务器信息
-//	StartData := dao.GetPanelDataByID(p.Start)
-//
-//	// 检查白名单
-//	if StartData.PanelURL == "" {
-//		return res.CodeContainerError, "发起的容器未在白名单内"
-//	}
-//
-//	// 获取Start面板的Config.sh
-//	zap.L().Debug("config.sh 同步：获取Start面板config.sh")
-//	url := panel.StringHTTP(StartData.PanelURL) + "/open/configs/config.sh?t=" + strconv.Itoa(StartData.PanelParams)
-//	allData, _ := requests.Requests("GET", url, "", StartData.PanelToken)
-//
-//	// 绑定数据
-//	var sh model.ConfigSH
-//	err := json.Unmarshal(allData, &sh)
-//	if err != nil {
-//		zap.L().Error("[config.sh 同步]序列化数据失败:" + err.Error())
-//		return res.CodeServerBusy, "序列化数据失败"
-//	}
-//
-//	// 同步其余容器
-//	for i := 0; i < len(p.End); i++ {
-//		EndData := dao.GetPanelDataByID(p.End[i])
-//		if EndData.PanelURL == "" {
-//			continue
-//		}
-//		b := ConfigUpload(EndData, sh.Data)
-//		if b != true {
-//			return res.CodeContainerError, "面板：" + EndData.PanelName + "，Config.sh同步失败"
-//		}
-//	}
-//	return res.CodeSuccess, "任务完成"
-//}
+func ContainerSynchronization(p *model.ContainerOperationMass) (res.ResCode, string) {
+	// 根据ID查询服务器信息
+	StartData := dao.GetPanelDataByID(p.Start)
+
+	// 检查白名单
+	if StartData.PanelURL == "" {
+		return res.CodeContainerError, "发起的容器未在白名单内"
+	}
+
+	// 获取Start面板的Config.sh
+	zap.L().Debug("config.sh 同步：获取Start面板config.sh")
+	url := panel.StringHTTP(StartData.PanelURL) + "/open/configs/config.sh?t=" + strconv.Itoa(StartData.PanelParams)
+	allData, _ := requests.Requests("GET", url, "", StartData.PanelToken)
+
+	// 绑定数据
+	var sh model.ConfigSH
+	err := json.Unmarshal(allData, &sh)
+	if err != nil {
+		zap.L().Error("[config.sh 同步]序列化数据失败:" + err.Error())
+		return res.CodeServerBusy, "序列化数据失败"
+	}
+	cd, err := json.Marshal(sh.Data)
+	if err != nil {
+		zap.L().Error("[config.sh 同步]序列化数据失败:" + err.Error())
+		return res.CodeServerBusy, "序列化数据失败"
+	}
+
+	// 同步其余容器
+	for i := 0; i < len(p.End); i++ {
+		EndData := dao.GetPanelDataByID(p.End[i])
+		if EndData.PanelURL == "" {
+			continue
+		}
+		b := ConfigUpload(EndData, fmt.Sprintf("%s", cd))
+		if b != true {
+			return res.CodeContainerError, "面板：" + EndData.PanelName + "，Config.sh同步失败"
+		}
+	}
+	return res.CodeSuccess, "任务完成"
+}
 
 // ConfigUpload Config.sh上传
-//func ConfigUpload(p model.Panel, content string) bool {
-//	data := `{"content": "` + content + `","name": "config.sh"}`
-//	zap.L().Debug("Config.sh上传：" + data)
-//	url := panel.StringHTTP(p.PanelURL) + "/open/configs/save?t=" + strconv.Itoa(p.PanelParams)
-//	allData, _ := requests.Requests("POST", url, data, p.PanelToken)
-//	// 绑定数据
-//	var sh model.ConfigSH
-//	err := json.Unmarshal(allData, &sh)
-//	if err != nil {
-//		zap.L().Error("[config.sh 同步]序列化数据失败:" + err.Error())
-//	}
-//	if sh.Code != 200 {
-//		return false
-//	}
-//	return true
-//}
+func ConfigUpload(p model.Panel, content string) bool {
+	data := `{"content": ` + content + `,"name": "config.sh"}`
+	zap.L().Debug("Config.sh上传：" + data)
+	url := panel.StringHTTP(p.PanelURL) + "/open/configs/save?t=" + strconv.Itoa(p.PanelParams)
+	allData, _ := requests.Requests("POST", url, data, p.PanelToken)
+	// 绑定数据
+	var sh model.ConfigSH
+	err := json.Unmarshal(allData, &sh)
+	if err != nil {
+		zap.L().Error("[config.sh 同步]序列化数据失败:" + err.Error())
+	}
+	if sh.Code != 200 {
+		return false
+	}
+	return true
+}
 
 // EnvUpload 变量上传
 func EnvUpload(p model.PanelEnvAll, pd model.Panel, journal string) {

@@ -4,12 +4,14 @@ import (
 	_const "QLToolsPro/server/const"
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	time2 "time"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 var AppLicence bool
 

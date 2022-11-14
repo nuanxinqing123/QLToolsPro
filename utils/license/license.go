@@ -4,7 +4,7 @@ import (
 	_const "QLToolsPro/server/const"
 	"QLToolsPro/utils/Sha1"
 	"QLToolsPro/utils/requests"
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/shirou/gopsutil/host"
 	"github.com/spf13/viper"
 	"github.com/super-l/machine-code/machine"
@@ -12,6 +12,8 @@ import (
 	"regexp"
 	time2 "time"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 /* 网络验证模块 */
 
