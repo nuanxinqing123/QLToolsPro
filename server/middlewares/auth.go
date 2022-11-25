@@ -49,6 +49,13 @@ func UserAuth() gin.HandlerFunc {
 			res.ResErrorWithMsg(c, res.CodeInvalidToken, "无访问权限或认证已过期")
 			return
 		} else {
+			if cUser.IsState == false {
+				// 账号已被封禁
+				res.ResError(c, res.CodeInvalidToken)
+				c.Abort()
+				return
+			}
+
 			if mc.UserSecret != cUser.Password[:6] {
 				// 已修改密码，需要强制下线
 				res.ResError(c, res.CodeInvalidToken)
@@ -96,6 +103,13 @@ func AdminAuth() gin.HandlerFunc {
 			res.ResErrorWithMsg(c, res.CodeInvalidToken, "无访问权限或认证已过期")
 			return
 		} else {
+			if cAdmin.IsState == false {
+				// 账号已被封禁
+				res.ResError(c, res.CodeInvalidToken)
+				c.Abort()
+				return
+			}
+
 			if mc.UserSecret != cAdmin.Password[:6] == true {
 				// 已修改密码，需要强制下线
 				res.ResError(c, res.CodeInvalidToken)

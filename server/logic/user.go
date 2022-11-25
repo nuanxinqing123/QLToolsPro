@@ -301,7 +301,7 @@ func GetUserOneData(uid interface{}) (res.ResCode, model.UserData) {
 	if time2.Now().Unix() > data.ActivationTime.Unix() {
 		// 已到期
 		UserData.IsActivationTime = false
-		UserData.ActivationTime = "未开通会员或会员已过期"
+		UserData.ActivationTime = "未开通或已过期"
 	} else {
 		// 未到期
 		UserData.IsActivationTime = true
