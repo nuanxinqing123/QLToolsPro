@@ -119,13 +119,13 @@ func ContainerRestore(c *gin.Context) {
 	// 获取参数
 	sID := c.Query("id")
 	file, _ := c.FormFile("file")
-	zap.L().Debug(file.Filename)
+	zap.L().Debug("【容器：恢复】文件名：" + file.Filename)
 
 	// 保存文件
 	err := c.SaveUploadedFile(file, "./"+file.Filename)
 	if err != nil {
 		// 记录错误
-		dao.RecordingError("恢复任务", err.Error())
+		dao.RecordingError("【容器：恢复】任务", err.Error())
 		res.ResError(c, res.CodeServerBusy)
 	}
 

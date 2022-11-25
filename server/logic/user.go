@@ -498,6 +498,10 @@ func CheckIf(ip1, ip2 string) (bool, bool) {
 		bool1：是否异地登录
 		bool2：是否解析出错
 	*/
+	// IP地址相同，跳过验证
+	if ip1 == ip2 {
+		return true, false
+	}
 
 	// 查询IP地址
 	url1 := "https://ip.useragentinfo.com/json?ip=" + ip1

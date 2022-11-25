@@ -9,7 +9,9 @@ package logic
 import (
 	"QLToolsPro/server/dao"
 	"QLToolsPro/server/model"
+	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
+	"bufio"
 	"go.uber.org/zap"
 	"io"
 	"os"
@@ -168,4 +170,56 @@ func PluginDelete(p *model.DeletePlugin) (res.ResCode, string) {
 	}
 
 	return res.CodeSuccess, ""
+}
+
+// PluginRemoteDownload 下载远程插件
+func PluginRemoteDownload(p *model.DeletePlugin) (res.ResCode, string) {
+	url := "http://plugin.6b7.xyz/v1/api/plugin/download?type=" + p.TypeData + "&filename=" + p.FileName
+	pData, err := requests.Requests("GET", url, "", "")
+	if err != nil {
+		zap.L().Error("[远程插件下载]发生错误，原因：" + err.Error())
+		return res.CodePluginError, "下载远程插件发生错误"
+	}
+
+	// 获取插件目录绝对路径
+	ExecPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		zap.L().Error("获取插件目录绝对路径错误：" + err.Error())
+		return res.CodePluginError, "获取插件目录绝对路径错误"
+	}
+
+	// 保存插件
+	FilePath := ""
+	if p.TypeData == "ordinary" {
+		FilePath = ExecPath + "/plugin/ordinary/" + p.FileName
+	} else {
+		FilePath = ExecPath + "/plugin/cron/" + p.FileName
+	}
+
+	file, err := os.OpenFile(FilePath, os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		zap.L().Error("[OpenFileError]" + err.Error())
+		return res.CodePluginError, "获取插件目录绝对路径错误"
+	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			zap.L().Error("[CloseFileError]" + err.Error())
+		}
+	}(file)
+
+	// 写入CDK数据
+	writer := bufio.NewWriter(file)
+	_, err2 := writer.Write(pData)
+	if err2 != nil {
+		zap.L().Error("[WriteError]" + err2.Error())
+		return res.CodePluginError, "下载远程插件失败"
+	}
+	err = writer.Flush()
+	if err != nil {
+		zap.L().Error("[WriteError]" + err.Error())
+		return res.CodePluginError, "下载远程插件失败"
+	}
+
+	return res.CodeSuccess, "下载插件成功"
 }

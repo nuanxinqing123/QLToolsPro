@@ -139,9 +139,42 @@ func PluginDelete(c *gin.Context) {
 	resCode, msg := logic.PluginDelete(p)
 	switch resCode {
 	case res.CodePluginError:
-		// 变量错误
+		// 插件错误
 		res.ResErrorWithMsg(c, res.CodePluginError, msg)
 	case res.CodeSuccess:
 		res.ResSuccess(c, "插件删除成功")
+	}
+}
+
+// PluginRemoteDownload 下载远程插件
+func PluginRemoteDownload(c *gin.Context) {
+	// 获取参数
+	p := new(model.DeletePlugin)
+	if err := c.ShouldBindJSON(&p); err != nil {
+		// 参数校验
+		zap.L().Error("SignInHandle with invalid param", zap.Error(err))
+
+		// 判断err是不是validator.ValidationErrors类型
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			res.ResError(c, res.CodeInvalidParam)
+			return
+		}
+
+		// 翻译错误
+		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 处理业务
+	resCode, msg := logic.PluginRemoteDownload(p)
+	switch resCode {
+	case res.CodeServerBusy:
+		res.ResError(c, res.CodeServerBusy)
+	case res.CodePluginError:
+		// 变量错误
+		res.ResErrorWithMsg(c, res.CodePluginError, msg)
+	case res.CodeSuccess:
+		res.ResSuccess(c, "插件下载成功")
 	}
 }
