@@ -33,12 +33,6 @@ func Setup() *gin.Engine {
 		r.Use(middlewares.LicenseCheck())
 	}
 
-	// 检查服务
-	{
-		// 小程序授权检查
-		middlewares.CheckAppLicence()
-	}
-
 	// 前端静态文件
 	{
 		// 加载模板文件

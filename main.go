@@ -12,6 +12,7 @@ import (
 	"QLToolsPro/server/dao"
 	"QLToolsPro/server/gcache"
 	"QLToolsPro/server/logger"
+	"QLToolsPro/server/middlewares"
 	"QLToolsPro/server/settings"
 	"QLToolsPro/utils/license"
 	"QLToolsPro/utils/snowflake"
@@ -96,6 +97,9 @@ func main() {
 
 	// 注册路由
 	r := server.Setup()
+
+	// 检查小程序授权
+	middlewares.CheckAppLicence()
 
 	// 启动服务
 	srv := &http.Server{

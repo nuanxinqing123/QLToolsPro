@@ -29,7 +29,7 @@ func Requests(method, url, data, token string) ([]byte, error) {
 		req.Header.Set("Authorization", Token)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "QLPanelTools client")
+	req.Header.Set("User-Agent", "QLToolsPro Client")
 	// 发送请求
 	resp, err := client.Do(req)
 	if err != nil {
