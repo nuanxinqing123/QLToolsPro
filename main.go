@@ -15,9 +15,10 @@ import (
 	"QLToolsPro/server/middlewares"
 	"QLToolsPro/server/settings"
 	"QLToolsPro/utils/license"
+	"QLToolsPro/utils/reload"
 	"QLToolsPro/utils/snowflake"
 	"QLToolsPro/utils/validator"
-	"context"
+	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -25,11 +26,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strconv"
 	"syscall"
-	"time"
 )
 
 func main() {
@@ -116,6 +115,7 @@ func main() {
 		fmt.Println("运行模式：Release模式")
 	}
 	fmt.Println("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
+	fmt.Println("进程PID：" + strconv.Itoa(syscall.Getpid()))
 	/* 检查授权 */
 	b, m := license.LoginLicense()
 	if !b {
@@ -128,28 +128,44 @@ func main() {
 	zap.L().Info("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
 
 	// 启动
+	//go func() {
+	//	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	//		log.Fatalf("Listten: %s\n", err)
+	//	}
+	//}()
+	//
+	//// 等待终端信号来优雅关闭服务器，为关闭服务器设置5秒超时
+	//quit := make(chan os.Signal, 1) // 创建一个接受信号的通道
+	//
+	//signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // 此处不会阻塞
+	//<-quit                                               // 阻塞此处，当接受到上述两种信号时，才继续往下执行
+	//zap.L().Info("Service ready to shut down")
+	//
+	//// 创建五秒超时的Context
+	//ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	//defer cancel()
+	//// 五秒内优雅关闭服务（将未处理完成的请求处理完再关闭服务），超过十秒就超时退出
+	//if err := srv.Shutdown(ctx); err != nil {
+	//	zap.L().Fatal("Service timed out has been shut down：", zap.Error(err))
+	//}
+	//
+	//zap.L().Info("Service has been shut down")
+	flag.Parse()
+
+	listener, err := reload.GetListener(srv.Addr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	var s = reload.NewService(listener)
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Listten: %s\n", err)
+		err = srv.Serve(listener)
+		if err != nil {
+			log.Println(err)
 		}
 	}()
 
-	// 等待终端信号来优雅关闭服务器，为关闭服务器设置5秒超时
-	quit := make(chan os.Signal, 1) // 创建一个接受信号的通道
-
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM) // 此处不会阻塞
-	<-quit                                               // 阻塞此处，当接受到上述两种信号时，才继续往下执行
-	zap.L().Info("Service ready to shut down")
-
-	// 创建五秒超时的Context
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	// 五秒内优雅关闭服务（将未处理完成的请求处理完再关闭服务），超过十秒就超时退出
-	if err := srv.Shutdown(ctx); err != nil {
-		zap.L().Fatal("Service timed out has been shut down：", zap.Error(err))
-	}
-
-	zap.L().Info("Service has been shut down")
+	s.Start()
 }
 
 // IFPlugin 判断并自动创建插件文件夹
