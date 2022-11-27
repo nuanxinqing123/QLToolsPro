@@ -5,6 +5,7 @@ type RemoteVersion struct {
 	LocVersion string
 	Version    string
 	Notice     string
+	Update     string
 }
 
 // SoftWareGOOS 更新版本架构
