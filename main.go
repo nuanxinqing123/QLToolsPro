@@ -28,7 +28,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"syscall"
 )
 
 func main() {
@@ -115,7 +114,6 @@ func main() {
 		fmt.Println("运行模式：Release模式")
 	}
 	fmt.Println("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
-	fmt.Println("进程PID：" + strconv.Itoa(syscall.Getpid()))
 	/* 检查授权 */
 	b, m := license.LoginLicense()
 	if !b {

@@ -5,7 +5,13 @@ import (
 	"QLToolsPro/server/model"
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
+	"github.com/staktrace/go-update"
 	"go.uber.org/zap"
+	"os/exec"
+	"runtime"
+	"strconv"
+	"syscall"
+	"time"
 )
 
 // CheckVersion 检查版本更新
@@ -31,55 +37,77 @@ func CheckVersion() (model.RemoteVersion, res.ResCode) {
 }
 
 // SystemSoftwareUpdate 更新软件
-//func SystemSoftwareUpdate(p *model.SoftWareGOOS) (res.ResCode, string) {
-//	if runtime.GOOS == "windows" {
-//		return res.CodeSystemError, "Windows系统不支持此功能"
-//	}
-//	// 获取版本号
-//	var v model.Ver
-//	url := "https://version.6b7.xyz/qltools_version.json"
-//	r, _ := requests.Requests("GET", url, "", "")
-//	_ = json.Unmarshal(r, &v)
-//	if v.Version == _const.Version {
-//		return res.CodeSystemError, "已经是最新版本"
-//	}
-//
-//	// 更新程序
-//	go UpdateSoftWare(v.Version, p.Framework)
-//
-//	return res.CodeSuccess, "程序已进入自动更新任务，如果更新失败请手动更新"
-//}
+func SystemSoftwareUpdate(p *model.SoftWareGOOS) (res.ResCode, string) {
+	if runtime.GOOS == "windows" {
+		return res.CodeSystemError, "Windows系统不支持此功能"
+	}
+	// 获取版本号
+	var v model.RemoteVersion
+	url := "https://version.6b7.xyz/qltoolspro_version.json"
+	r, err := requests.Requests("GET", url, "", "")
+	if err != nil {
+		zap.L().Error("[系统更新]：" + err.Error())
+		return res.CodeSystemError, "系统更新发生错误，详细请查看日志"
+	}
+	if err = json.Unmarshal(r, &v); err != nil {
+		zap.L().Error("[系统更新]：" + err.Error())
+		return res.CodeSystemError, "系统更新发生错误，详细请查看日志"
+	}
+	if v.Version == _const.LocVersion {
+		return res.CodeSystemError, "已经是最新版本"
+	}
 
-//func UpdateSoftWare(version, GOOS string) {
-//	// 更新地址
-//	var url string
-//	url = "https://github.com/nuanxinqing123/QLTools/releases/download/" + version
-//
-//	if GOOS == "amd64" {
-//		url += "/QLTools-linux-amd64"
-//	} else if GOOS == "arm64" {
-//		url += "/QLTools-linux-arm64"
-//	} else {
-//		url += "/QLTools-linux-arm"
-//	}
-//	zap.L().Debug("Download: " + url)
-//
-//	err := doUpdate(url)
-//	if err != nil {
-//		zap.L().Error(err.Error())
-//	}
-//}
+	// 更新程序
+	go UpdateSoftWare(v.Version, p.Framework)
 
-//func doUpdate(url string) error {
-//	resp, err := requests.Down(url)
-//	if err != nil {
-//		return err
-//	}
-//	defer resp.Body.Close()
-//	err = update.Apply(resp.Body, update.Options{})
-//	if err != nil {
-//		// error handling
-//		return err
-//	}
-//	return nil
-//}
+	return res.CodeSuccess, "已开始自动更新（完成后自动重启），如果更新失败请手动更新"
+}
+
+// UpdateSoftWare 更新程序
+func UpdateSoftWare(version, GOOS string) {
+	// 更新地址
+	var url string
+	url = "https://version.6b7.xyz/update/QLToolsPro/" + version
+
+	if GOOS == "amd64" {
+		url += "/QLToolsPro-linux-amd64"
+	} else {
+		url += "/QLToolsPro-linux-arm64"
+	}
+	zap.L().Debug("Download: " + url)
+
+	err := doUpdate(url)
+	if err != nil {
+		zap.L().Error("[系统更新]：" + err.Error())
+		return
+	}
+
+	// Kill Main
+	go func() {
+		// 等待两秒钟
+		time.Sleep(time.Second * 2)
+
+		// Kill
+		//fmt.Println("进程PID：" + strconv.Itoa(syscall.Getpid()))
+		cmd := exec.Command("sh", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
+		_ = cmd.Run()
+		if err != nil {
+			zap.L().Error("[重启]：" + err.Error())
+		}
+	}()
+}
+
+// 更新覆盖源文件
+func doUpdate(url string) error {
+	resp, err := requests.Down(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	err = update.Apply(resp.Body, update.Options{})
+	if err != nil {
+		// error handling
+		return err
+	}
+	return nil
+}

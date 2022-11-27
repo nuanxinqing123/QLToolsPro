@@ -157,7 +157,7 @@ func Setup() *gin.Engine {
 				// 首页数据
 				admin.GET("index/data", controllers.AdminIndexData)
 				// 更新系统
-				//admin.POST("system/software/update", controllers.SystemSoftwareUpdate)
+				admin.POST("system/software/update", controllers.SystemSoftwareUpdate)
 			}
 
 			// 面板管理
