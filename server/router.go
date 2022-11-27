@@ -158,149 +158,150 @@ func Setup() *gin.Engine {
 				admin.GET("index/data", controllers.AdminIndexData)
 				// 更新系统
 				admin.POST("system/software/update", controllers.SystemSoftwareUpdate)
-			}
-
-			// 面板管理
-			{
-				// 面板分页查询
-				admin.GET("panel/division/data", controllers.PanelDivisionData)
-				// 面板新增
-				admin.POST("panel/add", controllers.PanelAdd)
-				// 面板修改
-				admin.PUT("panel/update", controllers.PanelUpdate)
-				// 面板删除
-				admin.DELETE("panel/delete", controllers.PanelDelete)
-				// 面板测试连接
-				admin.POST("panel/test/connect", controllers.PanelTestConnect)
-				// 面板绑定变量
-				admin.PUT("panel/binding/update", controllers.PanelBindingUpdate)
-				// 面板解除所有变量绑定
-				admin.PUT("panel/unbind/update", controllers.PanelUnbindUpdate)
-				// 面板批量更新Token
-				admin.PUT("panel/token/update", controllers.PanelTokenUpdate)
-			}
-
-			// 变量管理
-			{
-				// 变量面板分页查询
-				admin.GET("env/division/data", controllers.EnvDivisionData)
-				// 变量新增
-				admin.POST("env/add", controllers.EnvAdd)
-				// 变量修改
-				admin.PUT("env/update", controllers.EnvUpdate)
-				// 变量删除
-				admin.DELETE("env/delete", controllers.EnvDelete)
-				// 手动刷新首页缓存数据
-				admin.PUT("env/refresh", controllers.UserRefresh)
-			}
-
-			// 消息推送管理
-			{
-				// 用户WxPusher分页查询（仅返回已绑定WxPusher的用户信息）
-				admin.GET("message/division/data", controllers.MessageDivisionData)
-				// 管理员消息群发
-				admin.POST("message/send", controllers.MessageSend)
-				// 管理员全体消息发送
-				admin.POST("message/send/all", controllers.MessageSendAll)
-			}
-
-			// 容器管理
-			{
-				// 迁移
-				admin.POST("container/transfer", controllers.ContainerTransfer)
-				// 复制
-				admin.POST("container/copy", controllers.ContainerCopy)
-				// 备份
-				admin.POST("container/backup", controllers.ContainerBackup)
-				// 恢复
-				admin.POST("container/restore", controllers.ContainerRestore)
-				// 备份数据下载
-				admin.GET("container/backup/download", controllers.ContainerBackupDownload)
-				// config.sh 同步
-				admin.POST("container/synchronization", controllers.ContainerSynchronization)
-				// 任务错误记录查询
-				admin.GET("container/error/content", controllers.ContainerErrorContent)
-			}
-
-			// 插件管理
-			{
-				// 读取插件（上传执行插件、定时运行插件）
-				admin.GET("plugin/data", controllers.PluginData)
-				// 刷新定时插件
-				admin.PUT("plugin/cron/refresh", controllers.PluginCronRefresh)
-				// 上传插件（上传执行插件、定时运行插件）
-				admin.POST("plugin/upload", controllers.PluginUpload)
-				// 删除插件
-				admin.DELETE("plugin/delete", controllers.PluginDelete)
-				// 下载远程插件库插件
-				admin.POST("plugin/remote/download", controllers.PluginRemoteDownload)
-			}
-
-			// 用户管理
-			{
-				// 分页查询
-				admin.GET("user/division/data", controllers.UserDivisionData)
-				// 筛选查询
-				admin.GET("user/search", controllers.UserSearch)
-				// 修改
-				admin.PUT("user/information/update", controllers.UserInformationUpdate)
-				// 删除
-				admin.DELETE("user/information/delete", controllers.UserInformationDelete)
-			}
-
-			// 用户变量管理
-			{
-				// 筛选查询
-				admin.GET("user/env/data/search", controllers.UserEnvDataSearch)
-				// 修改用户变量
-				admin.PUT("user/env/data/update", controllers.UserEnvDataUpdate)
-				// 删除用户变量
-				admin.DELETE("user/env/data/delete", controllers.UserEnvDataDelete)
-			}
-
-			// 卡密管理
-			{
-				// 分页查询
-				admin.GET("cd-key/division/data", controllers.CDKEYDivisionCDKData)
-				// 筛选查询(integral：积分、vip：会员)
-				admin.GET("cd-key/search", controllers.CDKEYSearch)
-				// 标识查询
-				admin.GET("cd-key/remarks/search", controllers.CDKEYRemarksSearch)
-				// 生成
-				admin.POST("cd-key/add", controllers.CDKEYAdd)
-				// 下载文件
-				admin.GET("cd-key/data/download", controllers.CDKEYDataDownload)
-				// 修改
-				admin.PUT("cd-key/batch/update", controllers.CDKEYBatchUpdate)
-				// 删除
-				admin.DELETE("cd-key/delete", controllers.CDKEYDelete)
-				// 指定用户充值
-				admin.POST("cd-key/user/recharge", controllers.CDKEYUserRechargeIntegral)
-			}
-
-			// 充值数据
-			{
-				// 分页查询
-				admin.GET("recharge/division/data", controllers.RechargeDivisionData)
-				// 筛选查询
-				admin.GET("recharge/search", controllers.RechargeSearch)
-			}
-
-			// 上传记录
-			{
-				// 分页查询
-				admin.GET("record/division/data", controllers.RecordDivisionData)
-				// 筛选查询
-				admin.GET("record/search", controllers.RecordSearch)
-			}
-
-			// 网站设置
-			{
-				// 设置修改
-				admin.PUT("set/settings", controllers.SaveSettings)
+				// 关闭/重启系统
+				admin.GET("system/state", controllers.SystemState)
 			}
 		}
 
+		// 面板管理
+		{
+			// 面板分页查询
+			admin.GET("panel/division/data", controllers.PanelDivisionData)
+			// 面板新增
+			admin.POST("panel/add", controllers.PanelAdd)
+			// 面板修改
+			admin.PUT("panel/update", controllers.PanelUpdate)
+			// 面板删除
+			admin.DELETE("panel/delete", controllers.PanelDelete)
+			// 面板测试连接
+			admin.POST("panel/test/connect", controllers.PanelTestConnect)
+			// 面板绑定变量
+			admin.PUT("panel/binding/update", controllers.PanelBindingUpdate)
+			// 面板解除所有变量绑定
+			admin.PUT("panel/unbind/update", controllers.PanelUnbindUpdate)
+			// 面板批量更新Token
+			admin.PUT("panel/token/update", controllers.PanelTokenUpdate)
+		}
+
+		// 变量管理
+		{
+			// 变量面板分页查询
+			admin.GET("env/division/data", controllers.EnvDivisionData)
+			// 变量新增
+			admin.POST("env/add", controllers.EnvAdd)
+			// 变量修改
+			admin.PUT("env/update", controllers.EnvUpdate)
+			// 变量删除
+			admin.DELETE("env/delete", controllers.EnvDelete)
+			// 手动刷新首页缓存数据
+			admin.PUT("env/refresh", controllers.UserRefresh)
+		}
+
+		// 消息推送管理
+		{
+			// 用户WxPusher分页查询（仅返回已绑定WxPusher的用户信息）
+			admin.GET("message/division/data", controllers.MessageDivisionData)
+			// 管理员消息群发
+			admin.POST("message/send", controllers.MessageSend)
+			// 管理员全体消息发送
+			admin.POST("message/send/all", controllers.MessageSendAll)
+		}
+
+		// 容器管理
+		{
+			// 迁移
+			admin.POST("container/transfer", controllers.ContainerTransfer)
+			// 复制
+			admin.POST("container/copy", controllers.ContainerCopy)
+			// 备份
+			admin.POST("container/backup", controllers.ContainerBackup)
+			// 恢复
+			admin.POST("container/restore", controllers.ContainerRestore)
+			// 备份数据下载
+			admin.GET("container/backup/download", controllers.ContainerBackupDownload)
+			// config.sh 同步
+			admin.POST("container/synchronization", controllers.ContainerSynchronization)
+			// 任务错误记录查询
+			admin.GET("container/error/content", controllers.ContainerErrorContent)
+		}
+
+		// 插件管理
+		{
+			// 读取插件（上传执行插件、定时运行插件）
+			admin.GET("plugin/data", controllers.PluginData)
+			// 刷新定时插件
+			admin.PUT("plugin/cron/refresh", controllers.PluginCronRefresh)
+			// 上传插件（上传执行插件、定时运行插件）
+			admin.POST("plugin/upload", controllers.PluginUpload)
+			// 删除插件
+			admin.DELETE("plugin/delete", controllers.PluginDelete)
+			// 下载远程插件库插件
+			admin.POST("plugin/remote/download", controllers.PluginRemoteDownload)
+		}
+
+		// 用户管理
+		{
+			// 分页查询
+			admin.GET("user/division/data", controllers.UserDivisionData)
+			// 筛选查询
+			admin.GET("user/search", controllers.UserSearch)
+			// 修改
+			admin.PUT("user/information/update", controllers.UserInformationUpdate)
+			// 删除
+			admin.DELETE("user/information/delete", controllers.UserInformationDelete)
+		}
+
+		// 用户变量管理
+		{
+			// 筛选查询
+			admin.GET("user/env/data/search", controllers.UserEnvDataSearch)
+			// 修改用户变量
+			admin.PUT("user/env/data/update", controllers.UserEnvDataUpdate)
+			// 删除用户变量
+			admin.DELETE("user/env/data/delete", controllers.UserEnvDataDelete)
+		}
+
+		// 卡密管理
+		{
+			// 分页查询
+			admin.GET("cd-key/division/data", controllers.CDKEYDivisionCDKData)
+			// 筛选查询(integral：积分、vip：会员)
+			admin.GET("cd-key/search", controllers.CDKEYSearch)
+			// 标识查询
+			admin.GET("cd-key/remarks/search", controllers.CDKEYRemarksSearch)
+			// 生成
+			admin.POST("cd-key/add", controllers.CDKEYAdd)
+			// 下载文件
+			admin.GET("cd-key/data/download", controllers.CDKEYDataDownload)
+			// 修改
+			admin.PUT("cd-key/batch/update", controllers.CDKEYBatchUpdate)
+			// 删除
+			admin.DELETE("cd-key/delete", controllers.CDKEYDelete)
+			// 指定用户充值
+			admin.POST("cd-key/user/recharge", controllers.CDKEYUserRechargeIntegral)
+		}
+
+		// 充值数据
+		{
+			// 分页查询
+			admin.GET("recharge/division/data", controllers.RechargeDivisionData)
+			// 筛选查询
+			admin.GET("recharge/search", controllers.RechargeSearch)
+		}
+
+		// 上传记录
+		{
+			// 分页查询
+			admin.GET("record/division/data", controllers.RecordDivisionData)
+			// 筛选查询
+			admin.GET("record/search", controllers.RecordSearch)
+		}
+
+		// 网站设置
+		{
+			// 设置修改
+			admin.PUT("set/settings", controllers.SaveSettings)
+		}
 	}
 
 	return r

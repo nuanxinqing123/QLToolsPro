@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
+	"os/exec"
+	"strconv"
+	"syscall"
+	"time"
 )
 
 // SystemVersion 系统版本
@@ -50,4 +54,33 @@ func SystemSoftwareUpdate(c *gin.Context) {
 		// 获取成功
 		res.ResSuccess(c, msg)
 	}
+}
+
+// SystemState 关闭/重启系统
+func SystemState(c *gin.Context) {
+	// shutdown：关闭、restart：重启
+	t := c.Query("type")
+	if t == "shutdown" {
+		go func() {
+			time.Sleep(time.Second * 3)
+			zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
+			cmd := exec.Command("/bin/bash", "-c", "kill -SIGTSTP "+strconv.Itoa(syscall.Getpid()))
+			err := cmd.Start()
+			if err != nil {
+				zap.L().Error("[重启]：" + err.Error())
+			}
+		}()
+
+	} else {
+		go func() {
+			time.Sleep(time.Second * 3)
+			zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
+			cmd := exec.Command("/bin/bash", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
+			err := cmd.Start()
+			if err != nil {
+				zap.L().Error("[重启]：" + err.Error())
+			}
+		}()
+	}
+	res.ResSuccess(c, "系统将在三秒后执行操作")
 }
