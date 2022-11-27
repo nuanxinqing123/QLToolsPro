@@ -61,7 +61,7 @@ func GetListener(laddr string) (l net.Listener, err error) {
 			log.Printf("net.FileListener error:%v\n", err)
 			return
 		}
-		log.Printf("laddr : %v ,listener: %v \n", laddr, l)
+		//log.Printf("laddr : %v ,listener: %v \n", laddr, l)
 
 		// 如果是子进程就杀掉父进程
 		syscall.Kill(syscall.Getppid(), syscall.SIGTSTP) //干掉父进程

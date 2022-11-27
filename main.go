@@ -28,6 +28,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"syscall"
 )
 
 func main() {
@@ -148,6 +149,7 @@ func main() {
 	//}
 	//
 	//zap.L().Info("Service has been shut down")
+	zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
 	flag.Parse()
 
 	listener, err := reload.GetListener(srv.Addr)
