@@ -156,6 +156,8 @@ func Setup() *gin.Engine {
 			{
 				// 首页数据
 				admin.GET("index/data", controllers.AdminIndexData)
+				// 更新系统
+				//admin.POST("system/software/update", controllers.SystemSoftwareUpdate)
 			}
 
 			// 面板管理
@@ -231,7 +233,7 @@ func Setup() *gin.Engine {
 				// 删除插件
 				admin.DELETE("plugin/delete", controllers.PluginDelete)
 				// 下载远程插件库插件
-				admin.POST("plugin/remote/download", controllers.PluginRemoteDownload) // PluginRemoteDownload
+				admin.POST("plugin/remote/download", controllers.PluginRemoteDownload)
 			}
 
 			// 用户管理

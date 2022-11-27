@@ -15,12 +15,14 @@ require (
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/json-iterator/go v1.1.12
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/segmentio/ksuid v1.0.4
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/viper v1.12.0
+	github.com/staktrace/go-update v0.0.0-20210525161054-fc019945f9a2
 	github.com/super-l/machine-code v0.0.0-20210720085303-62525d58dab0
 	go.uber.org/zap v1.17.0
 	gorm.io/driver/sqlite v1.3.6
@@ -37,7 +39,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect

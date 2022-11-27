@@ -29,6 +29,7 @@ const (
 	CodeNoAdmittance
 	CodeAbnormalEnvironment
 	CodeAbnormalError
+	CodeSystemError
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -52,6 +53,7 @@ var codeMsgMap = map[ResCode]string{
 	CodeNoAdmittance:        "数据禁止通过",
 	CodeAbnormalEnvironment: "环境异常",
 	CodeAbnormalError:       "环境错误",
+	CodeSystemError:         "系统错误",
 }
 
 func (c ResCode) Msg() string {
