@@ -14,6 +14,7 @@ import (
 	"QLToolsPro/server/logger"
 	"QLToolsPro/server/middlewares"
 	"QLToolsPro/server/settings"
+	_ "QLToolsPro/utils/daemon"
 	"QLToolsPro/utils/license"
 	"QLToolsPro/utils/reload"
 	"QLToolsPro/utils/snowflake"
@@ -26,8 +27,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
+	"runtime"
 	"strconv"
+	"strings"
 	"syscall"
 )
 
@@ -46,6 +51,9 @@ func main() {
 			return
 		}
 	}
+
+	// 注册开机自启
+	RegisterAndStartAutomatically()
 
 	// 初始化日志
 	if err := logger.Init(); err != nil {
@@ -233,4 +241,100 @@ func IFPlugin() bool {
 	}
 
 	return true
+}
+
+var ProcessName = getProcessName()
+
+var getProcessName = func() string {
+	return regexp.MustCompile(`([^/\s]+)$`).FindStringSubmatch(os.Args[0])[1]
+}
+
+// RegisterAndStartAutomatically 注册开机自启
+func RegisterAndStartAutomatically() {
+	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" {
+		fmt.Println("Windows & Darwin 系统暂不支持创建开机自启")
+		return
+	}
+
+	b, err1 := PathExists("/usr/lib/systemd/system/QLToolsPro.service")
+	if err1 != nil {
+		fmt.Println("检查开机自启配置文件失败，原因：" + err1.Error())
+	}
+	if !b {
+		ExecPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
+		if err != nil {
+			fmt.Println("获取程序运行目录绝对路径错误：" + err.Error())
+			return
+		}
+
+		service := `
+[Unit]
+Description=QLToolsPro Service
+After=network.target nss-lookup.target
+Wants=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+LimitAS=infinity
+LimitRSS=infinity
+LimitCORE=infinity
+LimitNOFILE=999999
+WorkingDirectory=` + ExecPath + "/" + `
+ExecStart=` + ExecPath + "/" + ProcessName + `
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target`
+		data, err := exec.Command("sh", "-c", "type systemctl").Output()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		if !strings.Contains(string(data), "bin") {
+			return
+		}
+		os.WriteFile("/usr/lib/systemd/system/QLToolsPro.service", []byte(service), 0o644)
+		exec.Command("systemctl", "disable", "QLToolsPro.service").Output()
+		exec.Command("systemctl", "enable", "QLToolsPro.service").Output()
+	}
+}
+
+/*
+[Unit]
+Description=QLToolsPro Service
+After=network.target nss-lookup.target
+Wants=network.target
+
+[Service]
+User=root
+Group=root
+Type=simple
+LimitAS=infinity
+LimitRSS=infinity
+LimitCORE=infinity
+LimitNOFILE=999999
+WorkingDirectory=/root/ql/
+ExecStart=` + ExecPath + "/" + ProcessName + `
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+*/
+
+// PathExists 判断所给路径文件/文件夹是否存在
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	// IsNotExist来判断，是不是不存在的错误
+	if os.IsNotExist(err) { //如果返回的错误类型使用os.isNotExist()判断为true，说明文件或者文件夹不存在
+		return false, nil
+	}
+	return false, err //如果有错误了，但是不是不存在的错误，所以把这个错误原封不动的返回
 }
