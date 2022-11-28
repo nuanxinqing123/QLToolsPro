@@ -223,3 +223,46 @@ func PluginRemoteDownload(p *model.DeletePlugin) (res.ResCode, string) {
 
 	return res.CodeSuccess, "下载插件成功"
 }
+
+// RemotePluginOrdinaryData 获取远程插件库插件列表：普通
+//func RemotePluginOrdinaryData() (res.ResCode, interface{}) {
+//	url := "http://plugin.6b7.xyz/v1/api/plugin/data?type=ordinary"
+//	pData, err := requests.Requests("GET", url, "", "")
+//	if err != nil {
+//		zap.L().Error("[获取远程插件库插件列表]发生错误，原因：" + err.Error())
+//		return res.CodeServerBusy, "下载远程插件发生错误"
+//	}
+//	var p struct {
+//		Code int                    `json:"code"`
+//		Msg  string                 `json:"msg"`
+//		Data []model.OrdinaryPlugin `json:"data"`
+//	}
+//
+//	if err = json.Unmarshal(pData, &p); err != nil {
+//		zap.L().Error("[获取远程插件库插件列表]：" + err.Error())
+//		return res.CodeServerBusy, "系统更新发生错误，详细请查看日志"
+//	}
+//
+//	return res.CodeSuccess, p.Data
+//}
+
+// RemotePluginCronData 获取远程插件库插件列表：定时
+//func RemotePluginCronData() (res.ResCode, string) {
+//	url := "http://plugin.6b7.xyz/v1/api/plugin/data?type=cron"
+//	pData, err := requests.Requests("GET", url, "", "")
+//	if err != nil {
+//		zap.L().Error("[获取远程插件库插件列表]发生错误，原因：" + err.Error())
+//		return res.CodeServerBusy, "下载远程插件发生错误"
+//	}
+//	return 0, ""
+//}
+
+// RemotePluginFrontData 获取远程插件库插件列表：前置
+//func RemotePluginFrontData() (res.ResCode, string) {
+//	url := "http://plugin.6b7.xyz/v1/api/plugin/data?type=front"
+//	pData, err := requests.Requests("GET", url, "", "")
+//	if err != nil {
+//		zap.L().Error("[获取远程插件库插件列表]发生错误，原因：" + err.Error())
+//		return res.CodeServerBusy, "下载远程插件发生错误"
+//	}
+//}

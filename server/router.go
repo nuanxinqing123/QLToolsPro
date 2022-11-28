@@ -234,6 +234,8 @@ func Setup() *gin.Engine {
 				admin.POST("plugin/upload", controllers.PluginUpload)
 				// 删除插件
 				admin.DELETE("plugin/delete", controllers.PluginDelete)
+				// 读取远程插件库插件
+				//admin.GET("plugin/remote/data", controllers.PluginRemoteData)
 				// 下载远程插件库插件
 				admin.POST("plugin/remote/download", controllers.PluginRemoteDownload)
 			}
