@@ -116,12 +116,13 @@ func EnvDelete(p *model.EnvDelete) (res.ResCode, string) {
 //}
 
 // UserEnvDataSearch 用户变量管理:筛选查询
-func UserEnvDataSearch(t, s string) (res.ResCode, []interface{}) {
+func UserEnvDataSearch(t, s string) (res.ResCode, []model.PanelAndEnvAll) {
+	var ZpanelResult []model.PanelAndEnvAll
 	if t == "panel" {
 		var searchResult []interface{}
 		var panelResult model.PanelAndEnvAll
 		// 获取全部面板的变量
-		for _, p := range dao.GetPanelAllData() {
+		for _, p := range dao.GetPanelStartAllData() {
 			if p.PanelName == s {
 				// 获取面板上的所有变量
 				url := panel.StringHTTP(p.PanelURL) + "/open/envs?searchValue=&t=" + strconv.Itoa(p.PanelParams)
@@ -129,14 +130,14 @@ func UserEnvDataSearch(t, s string) (res.ResCode, []interface{}) {
 				if err != nil {
 					zap.L().Error("[用户变量管理:筛选查询]面板:" + p.PanelName + "。已无法连接，请管理员尽快处理")
 					searchResult = append(searchResult, "查询面板:"+p.PanelName+"。可能已经失联，请管理员检查连通性")
-					return res.CodeUserEnvError, searchResult
+					return res.CodeUserEnvError, ZpanelResult
 				}
 				var env model.PanelEnvAll
 				err = json.Unmarshal(allData, &env)
 				if err != nil {
 					zap.L().Error("[用户变量管理:筛选查询]:" + err.Error())
 					searchResult = append(searchResult, "数据序列化失败, 面板:"+p.PanelName)
-					return res.CodeUserEnvError, searchResult
+					return res.CodeUserEnvError, ZpanelResult
 				}
 
 				// 判断返回状态
@@ -144,37 +145,39 @@ func UserEnvDataSearch(t, s string) (res.ResCode, []interface{}) {
 					// 未授权或Token失效
 					go panel.GetPanelToken(p.PanelURL, p.PanelClientID, p.PanelClientSecret)
 					searchResult = append(searchResult, "查询面板:"+p.PanelName+"。可能已经失联，请管理员检查连通性")
-					return res.CodeUserEnvError, searchResult
+					return res.CodeUserEnvError, ZpanelResult
 				} else if env.Code > 500 {
 					searchResult = append(searchResult, "查询面板:"+p.PanelName+"。发生错误，请检查青龙面板是否正常工作中")
-					return res.CodeUserEnvError, searchResult
+					return res.CodeUserEnvError, ZpanelResult
 				}
 				// 添加符合规定的内容
 				panelResult.PanelName = p.PanelName
 				panelResult.PanelEnv = env.Data
+
+				ZpanelResult = append(ZpanelResult, panelResult)
 			}
 		}
-		searchResult = append(searchResult, panelResult)
-		return res.CodeSuccess, searchResult
+		//searchResult = append(searchResult, panelResult)
+		return res.CodeSuccess, ZpanelResult
 	} else {
 		var searchResult []interface{}
 		var panelResult model.PanelAndEnvAll
 		// 获取全部面板的变量
-		for _, p := range dao.GetPanelAllData() {
+		for _, p := range dao.GetPanelStartAllData() {
 			// 获取面板上的所有变量
 			url := panel.StringHTTP(p.PanelURL) + "/open/envs?searchValue=&t=" + strconv.Itoa(p.PanelParams)
 			allData, err := requests.Requests("GET", url, "", p.PanelToken)
 			if err != nil {
 				zap.L().Error("[用户变量管理:筛选查询]面板:" + p.PanelName + "。已无法连接，请管理员尽快处理")
 				searchResult = append(searchResult, "查询面板:"+p.PanelName+"。可能已经失联，请管理员检查连通性")
-				return res.CodeUserEnvError, searchResult
+				return res.CodeUserEnvError, ZpanelResult
 			}
 			var env model.PanelEnvAll
 			err = json.Unmarshal(allData, &env)
 			if err != nil {
 				zap.L().Error("[用户变量管理:筛选查询]:" + err.Error())
 				searchResult = append(searchResult, "数据序列化失败, 面板:"+p.PanelName)
-				return res.CodeUserEnvError, searchResult
+				return res.CodeUserEnvError, ZpanelResult
 			}
 
 			// 判断返回状态
@@ -182,10 +185,10 @@ func UserEnvDataSearch(t, s string) (res.ResCode, []interface{}) {
 				// 未授权或Token失效
 				go panel.GetPanelToken(p.PanelURL, p.PanelClientID, p.PanelClientSecret)
 				searchResult = append(searchResult, "查询面板:"+p.PanelName+"。可能已经失联，请管理员检查连通性")
-				return res.CodeUserEnvError, searchResult
+				return res.CodeUserEnvError, ZpanelResult
 			} else if env.Code > 500 {
 				searchResult = append(searchResult, "查询面板:"+p.PanelName+"。发生错误，请检查青龙面板是否正常工作中")
-				return res.CodeUserEnvError, searchResult
+				return res.CodeUserEnvError, ZpanelResult
 			}
 
 			// 添加符合规定的内容
@@ -195,9 +198,10 @@ func UserEnvDataSearch(t, s string) (res.ResCode, []interface{}) {
 					panelResult.PanelEnv = append(panelResult.PanelEnv, e)
 				}
 			}
+			ZpanelResult = append(ZpanelResult, panelResult)
 		}
-		searchResult = append(searchResult, panelResult)
-		return res.CodeSuccess, searchResult
+		//searchResult = append(searchResult, ZpanelResult)
+		return res.CodeSuccess, ZpanelResult
 	}
 }
 

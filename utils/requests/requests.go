@@ -17,6 +17,8 @@ import (
 
 // Requests 封装HTTP请求
 func Requests(method, url, data, token string) ([]byte, error) {
+	zap.L().Debug("请求URL：" + url)
+
 	// 创建HTTP实例
 	client := &http.Client{Timeout: 20 * time.Second}
 

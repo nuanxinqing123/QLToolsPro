@@ -133,6 +133,7 @@ func UserEnvDataSearch(c *gin.Context) {
 	// 查询类型（面板查询：panel、用户查询：user）
 	typeData := c.Query("type")
 	search := c.Query("s")
+	zap.L().Debug("[用户变量管理:筛选查询]s：" + search)
 	resCode, data := logic.UserEnvDataSearch(typeData, search)
 
 	switch resCode {
