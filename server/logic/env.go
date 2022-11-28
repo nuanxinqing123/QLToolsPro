@@ -248,7 +248,7 @@ func UserEnvDataUpdate(p *model.UserEnvUpdate) (res.ResCode, string) {
 func UserEnvDataDelete(p *model.PanelEnvDelete) (res.ResCode, string) {
 	panelData := dao.GetPanelNameData(p.PanelName)
 	if panelData.PanelURL == "" && panelData.PanelName == "" {
-		return res.CodeUserEnvError, "修改的面板信息不存在"
+		return res.CodeUserEnvError, "面板信息不存在"
 	}
 
 	url := panel.StringHTTP(panelData.PanelURL) + "/open/envs?t=" + strconv.Itoa(panelData.PanelParams)

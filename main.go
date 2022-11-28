@@ -135,6 +135,8 @@ func main() {
 	zap.L().Info("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
 
 	// 启动
+
+	// Windows
 	//go func() {
 	//	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 	//		log.Fatalf("Listten: %s\n", err)
@@ -157,6 +159,8 @@ func main() {
 	//}
 	//
 	//zap.L().Info("Service has been shut down")
+
+	// Linux
 	zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
 	flag.Parse()
 
