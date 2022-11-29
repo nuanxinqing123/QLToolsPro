@@ -90,7 +90,7 @@ func UpdateSoftWare(version, GOOS string) {
 		// Kill
 		zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
 		cmd := exec.Command("/bin/bash", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
-		err = cmd.Start()
+		err = cmd.Run()
 		if err != nil {
 			zap.L().Error("[重启]：" + err.Error())
 		}
