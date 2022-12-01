@@ -152,40 +152,6 @@ func PluginDelete(c *gin.Context) {
 前置插件（待定）：名字、版本号、作者
 */
 
-// PluginRemoteData 插件信息获取
-//func PluginRemoteData(c *gin.Context) {
-//	// 获取查询类型(ordinary: 普通、cron：定时、front：前置)
-//	typeData := c.Query("type")
-//	if typeData == "ordinary" {
-//		resCode, data := logic.RemotePluginOrdinaryData()
-//		switch resCode {
-//		case res.CodeServerBusy:
-//			res.ResError(c, res.CodeServerBusy)
-//		case res.CodeSuccess:
-//			// 查询成功
-//			res.ResSuccess(c, data)
-//		}
-//	} else if typeData == "cron" {
-//		resCode, data := logic.RemotePluginCronData()
-//		switch resCode {
-//		case res.CodeServerBusy:
-//			res.ResError(c, res.CodeServerBusy)
-//		case res.CodeSuccess:
-//			// 查询成功
-//			res.ResSuccess(c, data)
-//		}
-//	} else {
-//		resCode, data := logic.RemotePluginFrontData()
-//		switch resCode {
-//		case res.CodeServerBusy:
-//			res.ResError(c, res.CodeServerBusy)
-//		case res.CodeSuccess:
-//			// 查询成功
-//			res.ResSuccess(c, data)
-//		}
-//	}
-//}
-
 // PluginRemoteDownload 下载远程插件
 func PluginRemoteDownload(c *gin.Context) {
 	// 获取参数
