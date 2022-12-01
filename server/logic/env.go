@@ -122,7 +122,16 @@ func UserEnvDataSearch(t, s string) (res.ResCode, []model.PanelAndEnvAll) {
 		var searchResult []interface{}
 		var panelResult model.PanelAndEnvAll
 		// 获取全部面板的变量
-		p := dao.GetPanelNameData("p.PanelName")
+		iNum, err := strconv.Atoi(s)
+		if err != nil {
+			zap.L().Error("[用户变量管理:筛选查询]：查询内容类型错误")
+			return res.CodeUserEnvError, ZpanelResult
+		}
+		p := dao.GetPanelIDData(iNum)
+		// 检查请求面板是否存在
+		if p.PanelName == "" {
+			return res.CodeUserEnvError, ZpanelResult
+		}
 		// 获取面板上的所有变量
 		url := panel.StringHTTP(p.PanelURL) + "/open/envs?searchValue=&t=" + strconv.Itoa(p.PanelParams)
 		allData, err := requests.Requests("GET", url, "", p.PanelToken)
