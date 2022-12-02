@@ -28,7 +28,18 @@ func GetVIPUserCount() int64 {
 	return DB.Where("is_v_ip = ?", true).Find(&[]model.User{}).RowsAffected
 }
 
-// GetToDayUpload 获取上传变量数量
-func GetToDayUpload(s, e string) int64 {
+// GetIntegralToDayUpload 获取今日消费积分
+func GetIntegralToDayUpload(s, e string) int {
+	var r []model.Record
+	DB.Where("created_at between ? and ?", s, e).Find(&r)
+	i := 0
+	for _, re := range r {
+		i += re.ConsumptionCount
+	}
+	return i
+}
+
+// GetEnvToDayUpload 获取上传变量数量
+func GetEnvToDayUpload(s, e string) int64 {
 	return DB.Where("created_at between ? and ?", s, e).Find(&[]model.Record{}).RowsAffected
 }

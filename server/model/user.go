@@ -23,7 +23,6 @@ type User struct {
 	Username       string    // 用户名
 	Password       string    // 用户密码
 	Integral       int64     // 用户积分
-	IsVIP          bool      // 是否属于VIP用户（true：是、false：否）
 	ActivationTime time.Time // 会员到期时间
 	IsAdmin        bool      // 是否属于管理员（true：是、false：否）
 	UserWxpusher   string    // 用户Wxpusher ID

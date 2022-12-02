@@ -118,7 +118,6 @@ func SignUp(p *model.UserSignUp) (res.ResCode, string) {
 		Username: p.Username,
 		Password: p.Password,
 		Integral: 0,
-		IsVIP:    false,
 		IsAdmin:  false,
 		IsState:  true,
 	}
@@ -248,7 +247,6 @@ func AppletLogin(p *model.AppletLogin) (res.ResCode, string) {
 			Username:  app.Openid,
 			Password:  app.Openid,
 			Integral:  0,
-			IsVIP:     false,
 			IsAdmin:   false,
 			IsState:   true,
 		}
@@ -296,7 +294,6 @@ func GetUserOneData(uid interface{}) (res.ResCode, model.UserData) {
 	UserData.Username = data.Username
 	UserData.Integral = data.Integral
 	UserData.UserWxpusher = data.UserWxpusher
-	UserData.IsVIP = data.IsVIP
 	// 修改会员到期时间
 	if time2.Now().Unix() > data.ActivationTime.Unix() {
 		// 已到期
@@ -474,20 +471,6 @@ func UserRePwd(p *model.UserRePwd) (res.ResCode, string) {
 	go gcache.DeleteCache(f.Code)
 
 	return res.CodeSuccess, "修改密码成功"
-}
-
-// UpdateUserVIPState 修改用户会员状态
-func UpdateUserVIPState() {
-	// 获取所有会员信息
-	user := dao.GetAllUserData()
-	for _, u := range user {
-		// 判断用户是否已到期
-		if time2.Now().Unix() > u.ActivationTime.Unix() {
-			// 已到期
-			u.IsVIP = false
-			dao.UpdateVIPState(u)
-		}
-	}
 }
 
 // CheckIf 检查是否属于异地登录

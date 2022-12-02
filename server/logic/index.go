@@ -10,7 +10,7 @@ import (
 	"QLToolsPro/server/dao"
 	"QLToolsPro/server/model"
 	res "QLToolsPro/utils/response"
-	"strconv"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -31,11 +31,10 @@ func AdminIndexData() (res.ResCode, model.IndexData) {
 	id.VIPUserCount = int(dao.GetVIPUserCount())
 
 	// 获取今天的时间
-	tt := 24
-	e, _ := time.ParseDuration("-" + strconv.Itoa(tt) + "h")
-	e1 := time.Now().Add(e)
-	e2 := e1.Format("2006-01-02")
-	id.ToDayUploadCount = int(dao.GetToDayUpload(e2+" 00:00:00", e2+" 23:59:59"))
+	e := time.Now().Format("2006-01-02")
+	zap.L().Debug("[管理员首页数据]开始时间" + e + " 00:00:00 & 结束时间：" + e + " 23:59:59")
+	id.ToDayIntegral = dao.GetIntegralToDayUpload(e+" 00:00:00", e+" 23:59:59")
+	id.ToDayUploadCount = int(dao.GetEnvToDayUpload(e+" 00:00:00", e+" 23:59:59"))
 
 	return res.CodeSuccess, id
 }

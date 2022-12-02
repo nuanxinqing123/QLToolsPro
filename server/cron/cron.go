@@ -37,11 +37,6 @@ func Task() error {
 		panel.DisableExpiredAccountsEnv()
 	})
 
-	// 修改会员状态
-	_, err = c.AddFunc("0 0/1 * * *", func() { // 每小时执行一次
-		logic.UpdateUserVIPState()
-	})
-
 	// 运行定时插件
 	resCode, fl := logic.PluginCronData()
 	if resCode != res.CodeServerBusy {
