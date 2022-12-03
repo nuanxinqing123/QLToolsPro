@@ -64,39 +64,9 @@ func UserRechargeVIP(uid any, p *model.UserRecharge) (res.ResCode, string) {
 	// 充值用户额度
 	zap.L().Debug("初始额度：" + fmt.Sprintf("%s", userData.ActivationTime))
 	if time.Now().Unix() > userData.ActivationTime.Unix() {
-		switch cdkData.CdKeyValidityPeriod {
-		case 1:
-			userData.ActivationTime = time.Now().AddDate(0, 0, 1)
-		case 7:
-			userData.ActivationTime = time.Now().AddDate(0, 0, 7)
-		case 14:
-			userData.ActivationTime = time.Now().AddDate(0, 0, 14)
-		case 31:
-			userData.ActivationTime = time.Now().AddDate(0, 1, 0)
-		case 92:
-			userData.ActivationTime = time.Now().AddDate(0, 3, 0)
-		case 183:
-			userData.ActivationTime = time.Now().AddDate(0, 6, 0)
-		case 365:
-			userData.ActivationTime = time.Now().AddDate(1, 0, 0)
-		}
+		userData.ActivationTime = time.Now().AddDate(0, 0, int(cdkData.CdKeyValidityPeriod))
 	} else {
-		switch cdkData.CdKeyValidityPeriod {
-		case 1:
-			userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 1)
-		case 7:
-			userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 7)
-		case 14:
-			userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, 14)
-		case 31:
-			userData.ActivationTime = userData.ActivationTime.AddDate(0, 1, 0)
-		case 92:
-			userData.ActivationTime = userData.ActivationTime.AddDate(0, 3, 0)
-		case 183:
-			userData.ActivationTime = userData.ActivationTime.AddDate(0, 6, 0)
-		case 365:
-			userData.ActivationTime = userData.ActivationTime.AddDate(1, 0, 0)
-		}
+		userData.ActivationTime = userData.ActivationTime.AddDate(0, 0, int(cdkData.CdKeyValidityPeriod))
 	}
 
 	// 更新用户数据
@@ -211,7 +181,7 @@ func RechargeSearch(s string) (res.ResCode, []model.Recharge) {
 	return res.CodeSuccess, dao.RechargeSearch(s, IsCDK)
 }
 
-// CDKEYUserRechargeIntegral 指定用户充值(积分)
+// CDKEYUserRechargeIntegral 指定用户充值
 func CDKEYUserRechargeIntegral(p *model.AdminRecharge) (res.ResCode, string) {
 	// 获取用户数据
 	userData := dao.GetUserIDData(p.UserID)

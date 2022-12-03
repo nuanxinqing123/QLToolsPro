@@ -28,11 +28,11 @@ func AdminIndexData() (res.ResCode, model.IndexData) {
 	id.PanelCount = int(dao.GetPanelCount())
 	id.EnvCount = int(dao.GetEnvCount())
 	id.UserCount = int(dao.GetRegisterUserCount())
-	id.VIPUserCount = int(dao.GetVIPUserCount())
 
 	// 获取今天的时间
 	e := time.Now().Format("2006-01-02")
 	zap.L().Debug("[管理员首页数据]开始时间" + e + " 00:00:00 & 结束时间：" + e + " 23:59:59")
+	id.VIPUserCount = int(dao.GetVIPUserCount(e))
 	id.ToDayIntegral = dao.GetIntegralToDayUpload(e+" 00:00:00", e+" 23:59:59")
 	id.ToDayUploadCount = int(dao.GetEnvToDayUpload(e+" 00:00:00", e+" 23:59:59"))
 

@@ -363,6 +363,9 @@ func UserDivisionData(page, quantity string) (res.ResCode, model.UserPageData) {
 
 	// 删除密码
 	for i := 0; i < len(data); i++ {
+		if time2.Now().Unix() > data[i].ActivationTime.Unix() {
+			data[i].ActivationTime = time2.Time{}
+		}
 		data[i].Password = "safety protection"
 	}
 

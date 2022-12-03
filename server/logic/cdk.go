@@ -92,24 +92,7 @@ func CDKEYAdd(p *model.CreateCDK) res.ResCode {
 		cdk.CdKeyIntegral = p.CdKeyIntegral
 	} else {
 		cdk.CdKeyType = "vip"
-		switch p.CdKeyValidityPeriod {
-		case 1:
-			cdk.CdKeyValidityPeriod = 1
-		case 7:
-			cdk.CdKeyValidityPeriod = 7
-		case 14:
-			cdk.CdKeyValidityPeriod = 14
-		case 31:
-			cdk.CdKeyValidityPeriod = 31
-		case 92:
-			cdk.CdKeyValidityPeriod = 92
-		case 183:
-			cdk.CdKeyValidityPeriod = 183
-		case 365:
-			cdk.CdKeyValidityPeriod = 365
-		default:
-			cdk.CdKeyValidityPeriod = 1
-		}
+		cdk.CdKeyValidityPeriod = int64(p.CdKeyValidityPeriod)
 	}
 
 	cdk.CdKeyState = true

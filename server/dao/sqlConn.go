@@ -52,7 +52,7 @@ func Init() {
 	})
 	if err != nil {
 		zap.L().Error("SQLite 发生错误, 原因：" + err.Error())
-		panic(err.Error())
+		panic(err)
 	}
 
 	// 自动迁移
