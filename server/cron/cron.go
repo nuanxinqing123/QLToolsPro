@@ -6,11 +6,8 @@
 
 package cron
 
-import "C"
 import (
-	"QLToolsPro/server/logic"
 	"QLToolsPro/utils/goja"
-	"QLToolsPro/utils/panel"
 	res "QLToolsPro/utils/response"
 	"github.com/robfig/cron/v3"
 	"go.uber.org/zap"
@@ -29,16 +26,16 @@ func Task() error {
 
 	// 定时更新面板Token（0 0 1/15 * *）
 	_, err = c.AddFunc("0 0 1/15 * *", func() { // 每15天
-		logic.PanelTokenUpdate()
+		PanelTokenUpdate()
 	})
 
 	// 禁用会员到期变量
 	_, err = c.AddFunc("0 0/4 * * *", func() { // 每四个小时执行一次
-		panel.DisableExpiredAccountsEnv()
+		DisableExpiredAccountsEnv()
 	})
 
 	// 运行定时插件
-	resCode, fl := logic.PluginCronData()
+	resCode, fl := PluginCronData()
 	if resCode != res.CodeServerBusy {
 		if len(fl) != 0 {
 			for _, i2 := range fl {

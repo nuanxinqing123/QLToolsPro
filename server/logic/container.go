@@ -7,6 +7,7 @@
 package logic
 
 import (
+	"QLToolsPro/server/cron"
 	"QLToolsPro/server/dao"
 	"QLToolsPro/server/model"
 	"QLToolsPro/utils/panel"
@@ -161,7 +162,6 @@ func ContainerBackup(p *model.ContainerOperationOne) (res.ResCode, string) {
 
 	// 保存数据
 	err = os.WriteFile("backup.json", b, 0777)
-	// err = ioutil.WriteFile("backup.json", b, 0777)
 	if err != nil {
 		// 记录错误
 		zap.L().Error("[容器：备份]序列化数据失败:" + err.Error())
@@ -360,8 +360,55 @@ func DelBackupJSON() {
 }
 
 // ContainerErrorContent 获取十条日志记录
-func ContainerErrorContent() ([]model.OperationRecord, res.ResCode) {
+func ContainerErrorContent() (res.ResCode, []model.OperationRecord) {
 	// 查询记录
-	info := dao.ContainerErrorContent()
-	return info, res.CodeSuccess
+	return res.CodeSuccess, dao.ContainerErrorContent()
+}
+
+// ContainerCronBackup 定时备份面板变量
+func ContainerCronBackup(p *model.CronBackUpEnv) (res.ResCode, string) {
+	t := dao.NameGetCronTask("CronBackUpEnv")
+	if t.Config == "" {
+		// 未创建CronBackUpEnv任务，创建任务
+		var c string
+		for _, id := range p.PanelID {
+			c += strconv.Itoa(id) + "&"
+		}
+		// 保存任务
+		t.Name = "CronBackUpEnv"
+		t.Cron = p.Cron
+		t.Config = c
+		t.State = p.State
+		dao.SavaCronTask(t)
+
+		// 刷新定时任务
+		go func() {
+			// 暂停已启用任务
+			cron.CStopTask()
+
+			// 重启定时服务
+			cron.CTask()
+		}()
+	} else {
+		var c string
+		for _, id := range p.PanelID {
+			c += strconv.Itoa(id) + "&"
+		}
+		// 保存任务
+		t.Cron = p.Cron
+		t.Config = c
+		t.State = p.State
+		dao.SavaCronTask(t)
+
+		// 刷新定时任务
+		go func() {
+			// 暂停已启用任务
+			cron.CStopTask()
+
+			// 重启定时服务
+			cron.CTask()
+		}()
+	}
+
+	return res.CodeSuccess, "任务设置成功"
 }

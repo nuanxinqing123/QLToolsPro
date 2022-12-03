@@ -184,10 +184,42 @@ func ContainerSynchronization(c *gin.Context) {
 // ContainerErrorContent 容器：十条日志
 func ContainerErrorContent(c *gin.Context) {
 	// 处理业务
-	info, resCode := logic.ContainerErrorContent()
+	resCode, info := logic.ContainerErrorContent()
 	switch resCode {
 	case res.CodeSuccess:
 		// 获取成功
 		res.ResSuccess(c, info)
+	}
+}
+
+// ContainerCronBackup 定时备份面板变量
+func ContainerCronBackup(c *gin.Context) {
+	// 获取参数
+	p := new(model.CronBackUpEnv)
+	if err := c.ShouldBindJSON(&p); err != nil {
+		// 参数校验
+		zap.L().Error("SignInHandle with invalid param", zap.Error(err))
+
+		// 判断err是不是validator.ValidationErrors类型
+		errs, ok := err.(validator.ValidationErrors)
+		if !ok {
+			res.ResError(c, res.CodeInvalidParam)
+			return
+		}
+
+		// 翻译错误
+		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 处理业务
+	resCode, msg := logic.ContainerCronBackup(p)
+	switch resCode {
+	case res.CodeContainerError:
+		res.ResErrorWithMsg(c, res.CodeContainerError, msg)
+	case res.CodeServerBusy:
+		res.ResError(c, res.CodeServerBusy)
+	case res.CodeSuccess:
+		res.ResSuccess(c, "定时任务已设置成功")
 	}
 }

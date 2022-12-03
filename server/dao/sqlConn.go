@@ -65,7 +65,8 @@ func Init() {
 		&model.CDK{},
 		&model.Recharge{},
 		&model.Record{},
-		&model.WebSettings{})
+		&model.WebSettings{},
+		&model.Task{})
 
 	if err != nil {
 		zap.L().Error("SQLite 自动迁移失败, 原因：" + err.Error())

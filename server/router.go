@@ -222,6 +222,8 @@ func Setup() *gin.Engine {
 				admin.POST("container/synchronization", controllers.ContainerSynchronization)
 				// 任务错误记录查询
 				admin.GET("container/error/content", controllers.ContainerErrorContent)
+				// 定时备份面板变量
+				admin.POST("container/cron/backup", controllers.ContainerCronBackup)
 			}
 
 			// 插件管理
