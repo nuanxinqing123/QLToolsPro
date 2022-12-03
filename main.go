@@ -244,6 +244,20 @@ func IFPlugin() bool {
 		}
 	}
 
+	_, err = os.Stat(ExecPath + "/config/backup")
+	if err != nil {
+		err = os.Mkdir("config/backup", 0777)
+		if err != nil {
+			fmt.Println("[1、自动创建备份文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+		_, err2 := os.Stat(ExecPath + "/config/backup")
+		if err2 != nil {
+			fmt.Println("[2、自动创建备份文件夹]失败，" + fmt.Sprintf("原因：%v", err.Error()))
+			return false
+		}
+	}
+
 	return true
 }
 
