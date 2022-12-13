@@ -18,8 +18,8 @@ import (
 	"time"
 )
 
-// CronContainerBackup 定时备份容器
-func CronContainerBackup(c string) {
+// ContainerBackup 定时备份容器
+func ContainerBackup(c string) {
 	// 获取程序路径
 	ExecPath, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -32,11 +32,11 @@ func CronContainerBackup(c string) {
 	for _, p := range pid {
 		pp, err := strconv.Atoi(p)
 		if err != nil {
-			zap.L().Error(err.Error())
+			continue
 		}
-		// 查询面板数据
 		pd := dao.GetPanelDataByID(pp)
 
+		zap.L().Debug("[定时备份容器]面板URL：" + pd.PanelURL)
 		url := panel.StringHTTP(pd.PanelURL) + "/open/envs?searchValue=&t=" + strconv.Itoa(pd.PanelParams)
 		allData, _ := requests.Requests("GET", url, "", pd.PanelToken)
 
@@ -49,7 +49,7 @@ func CronContainerBackup(c string) {
 
 		// 创建JSON文件
 		e := time.Now().Format("2006-01-02")
-		path := ExecPath + "/config/backup/" + e + "_" + pd.PanelName + ".json"
+		path := ExecPath + "/config/backup/" + e + "_" + pd.PanelName + "_" + strconv.FormatInt(time.Now().Unix(), 10) + ".json"
 		_, err = os.Create(path)
 		if err != nil {
 			// 记录错误

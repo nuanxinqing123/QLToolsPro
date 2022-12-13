@@ -7,11 +7,7 @@ import (
 	res "QLToolsPro/utils/response"
 	"github.com/staktrace/go-update"
 	"go.uber.org/zap"
-	"os/exec"
 	"runtime"
-	"strconv"
-	"syscall"
-	"time"
 )
 
 // CheckVersion 检查版本更新
@@ -60,7 +56,7 @@ func SystemSoftwareUpdate(p *model.SoftWareGOOS) (res.ResCode, string) {
 	// 更新程序
 	go UpdateSoftWare(v.Version, p.Framework)
 
-	return res.CodeSuccess, "已开始自动更新（完成后自动重启），如果更新失败请手动更新"
+	return res.CodeSuccess, "已开始自动更新（完成后需要手动重启），如果更新失败请手动更新"
 }
 
 // UpdateSoftWare 更新程序
@@ -83,18 +79,20 @@ func UpdateSoftWare(version, GOOS string) {
 	}
 
 	// Kill Main
-	go func() {
-		// 等待两秒钟
-		time.Sleep(time.Second * 2)
-
-		// Kill
-		zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
-		cmd := exec.Command("/bin/bash", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
-		err = cmd.Run()
-		if err != nil {
-			zap.L().Error("[重启]：" + err.Error())
-		}
-	}()
+	//go func() {
+	//	// 等待两秒钟
+	//	time.Sleep(time.Second * 2)
+	//
+	//	// Kill
+	//	zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
+	//	cmd := exec.Command("/bin/bash", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
+	//
+	//	// 调用命令，如果发生错误，记录错误信息
+	//	err = cmd.Start()
+	//	if err != nil {
+	//		zap.L().Error("[重启]：" + err.Error())
+	//	}
+	//}()
 }
 
 // 更新覆盖源文件

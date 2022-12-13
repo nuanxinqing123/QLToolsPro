@@ -56,6 +56,23 @@ func PanelDivisionData(page, quantity string) (res.ResCode, model.PanelPageData)
 	return res.CodeSuccess, pageData
 }
 
+// PanelDivisionDataSimple 面板简易数据
+func PanelDivisionDataSimple() (res.ResCode, []model.PanelSimpleData) {
+	var data []model.Panel
+	var sd []model.PanelSimpleData
+
+	// 获取所有面板
+	data = dao.GetPanelAllData()
+	for i := 0; i < len(data); i++ {
+		var psd model.PanelSimpleData
+		psd.ID = int(data[i].ID)
+		psd.PanelName = data[i].PanelName
+		sd = append(sd, psd)
+	}
+
+	return res.CodeSuccess, sd
+}
+
 // PanelAdd 面板新增
 func PanelAdd(p *model.PanelAdd) (res.ResCode, string) {
 	// 保存进数据库

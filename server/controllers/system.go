@@ -64,23 +64,28 @@ func SystemState(c *gin.Context) {
 		go func() {
 			time.Sleep(time.Second * 3)
 			zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
-			cmd := exec.Command("/bin/bash", "-c", "kill -SIGTSTP "+strconv.Itoa(syscall.Getpid()))
+			cmd := exec.Command("/bin/bash", "-c", "kill -SIGTERM "+strconv.Itoa(syscall.Getpid()))
 			err := cmd.Start()
 			if err != nil {
-				zap.L().Error("[重启]：" + err.Error())
+				zap.L().Error("[关闭]：" + err.Error())
 			}
+			err = cmd.Start()
 		}()
 
 	} else {
-		go func() {
-			time.Sleep(time.Second * 3)
-			zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
-			cmd := exec.Command("/bin/bash", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
-			err := cmd.Start()
-			if err != nil {
-				zap.L().Error("[重启]：" + err.Error())
-			}
-		}()
+		//go func() {
+		//	time.Sleep(time.Second * 3)
+		//	zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
+		//	cmd := exec.Command("/bin/bash", "-c", "kill -SIGHUP "+strconv.Itoa(syscall.Getpid()))
+		//
+		//	// 调用命令，如果发生错误，记录错误信息
+		//	err := cmd.Start()
+		//	if err != nil {
+		//		zap.L().Error("[重启]：" + err.Error())
+		//	}
+		//}()
+		res.ResSuccess(c, "系统重启功能暂时无法操作")
+		return
 	}
 	res.ResSuccess(c, "系统将在三秒后执行操作")
 }

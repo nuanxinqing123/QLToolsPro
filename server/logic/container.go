@@ -381,14 +381,13 @@ func ContainerCronBackup(p *model.CronBackUpEnv) (res.ResCode, string) {
 		t.State = p.State
 		dao.SavaCronTask(t)
 
-		// 刷新定时任务
-		go func() {
-			// 暂停已启用任务
-			cron.CStopTask()
-
-			// 重启定时服务
-			cron.CTask()
-		}()
+		// 暂停已启用任务
+		cron.CStopTask()
+		// 重启定时服务
+		err := cron.CTask()
+		if err != nil {
+			return res.CodeContainerError, "重启定时任务服务"
+		}
 	} else {
 		var c string
 		for _, id := range p.PanelID {
@@ -400,14 +399,14 @@ func ContainerCronBackup(p *model.CronBackUpEnv) (res.ResCode, string) {
 		t.State = p.State
 		dao.SavaCronTask(t)
 
-		// 刷新定时任务
-		go func() {
-			// 暂停已启用任务
-			cron.CStopTask()
+		// 暂停已启用任务
+		cron.CStopTask()
 
-			// 重启定时服务
-			cron.CTask()
-		}()
+		// 重启定时服务
+		err := cron.CTask()
+		if err != nil {
+			return res.CodeContainerError, "重启定时任务服务"
+		}
 	}
 
 	return res.CodeSuccess, "任务设置成功"

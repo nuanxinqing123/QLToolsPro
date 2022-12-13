@@ -11,12 +11,13 @@ import (
 	"QLToolsPro/server/logger"
 	"QLToolsPro/server/middlewares"
 	"QLToolsPro/static/bindata"
+	"html/template"
+	"strings"
+
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"html/template"
-	"strings"
 )
 
 func Setup() *gin.Engine {
@@ -166,6 +167,8 @@ func Setup() *gin.Engine {
 			{
 				// 面板分页查询
 				admin.GET("panel/division/data", controllers.PanelDivisionData)
+				// 获取面板简易数据
+				admin.GET("panel/division/data/simple", controllers.PanelDivisionDataSimple)
 				// 面板新增
 				admin.POST("panel/add", controllers.PanelAdd)
 				// 面板修改
@@ -186,6 +189,7 @@ func Setup() *gin.Engine {
 			{
 				// 变量面板分页查询
 				admin.GET("env/division/data", controllers.EnvDivisionData)
+				// 获取变量简易数据
 				// 变量新增
 				admin.POST("env/add", controllers.EnvAdd)
 				// 变量修改
@@ -224,6 +228,18 @@ func Setup() *gin.Engine {
 				admin.GET("container/error/content", controllers.ContainerErrorContent)
 				// 定时备份面板变量
 				admin.POST("container/cron/backup", controllers.ContainerCronBackup)
+			}
+
+			// 定时任务
+			{
+				// 分页查询
+				//admin.GET("cron/task/division/data", controllers.CronTaskDivisionData)
+				// 创建任务
+				//admin.POST("cron/task/add", controllers.CronTaskAdd)
+				// 修改任务
+				//admin.PUT("cron/task/update")
+				// 删除任务
+				//admin.DELETE("cron/task/delete")
 			}
 
 			// 插件管理

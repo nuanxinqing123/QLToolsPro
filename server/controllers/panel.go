@@ -32,6 +32,17 @@ func PanelDivisionData(c *gin.Context) {
 	}
 }
 
+// PanelDivisionDataSimple 获取面板简易数据
+func PanelDivisionDataSimple(c *gin.Context) {
+	resCode, data := logic.PanelDivisionDataSimple()
+
+	switch resCode {
+	case res.CodeSuccess:
+		// 查询成功
+		res.ResSuccess(c, data)
+	}
+}
+
 // PanelAdd 面板新增
 func PanelAdd(c *gin.Context) {
 	// 获取参数

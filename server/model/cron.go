@@ -11,6 +11,12 @@ type Task struct {
 	State  bool
 }
 
+// TaskPageData Task分页数据
+type TaskPageData struct {
+	Page     int64  `json:"page"`
+	PageData []Task `json:"pageData"`
+}
+
 // CronBackUpEnv 定时备份变量
 type CronBackUpEnv struct {
 	// 1 & 2 & 3 ...

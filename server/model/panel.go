@@ -28,6 +28,12 @@ type PanelPageData struct {
 	PageData []Panel `json:"pageData"`
 }
 
+// PanelSimpleData 面板简易数据
+type PanelSimpleData struct {
+	ID        int    `json:"id"`
+	PanelName string `json:"name"`
+}
+
 // PanelAdd 面板新增
 type PanelAdd struct {
 	Name         string `json:"name" binding:"required"`   // 面板名称
