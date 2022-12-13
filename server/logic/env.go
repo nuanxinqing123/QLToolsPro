@@ -61,6 +61,23 @@ func EnvDivisionData(page, quantity string) (res.ResCode, model.EnvPageData) {
 	return res.CodeSuccess, pageData
 }
 
+// EnvDivisionDataSimple 变量简易数据
+func EnvDivisionDataSimple() (res.ResCode, []model.EnvSimpleData) {
+	var data []model.Env
+	var sd []model.EnvSimpleData
+
+	// 获取所有面板
+	data = dao.GetEnvAllData()
+	for i := 0; i < len(data); i++ {
+		var psd model.EnvSimpleData
+		psd.ID = int(data[i].ID)
+		psd.EnvName = data[i].EnvName
+		sd = append(sd, psd)
+	}
+
+	return res.CodeSuccess, sd
+}
+
 // EnvAdd 面板新增
 func EnvAdd(p *model.EnvAdd) (res.ResCode, string) {
 	// 保存进数据库

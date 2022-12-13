@@ -190,6 +190,7 @@ func Setup() *gin.Engine {
 				// 变量面板分页查询
 				admin.GET("env/division/data", controllers.EnvDivisionData)
 				// 获取变量简易数据
+				admin.GET("env/division/data/simple", controllers.EnvDivisionDataSimple)
 				// 变量新增
 				admin.POST("env/add", controllers.EnvAdd)
 				// 变量修改

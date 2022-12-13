@@ -32,6 +32,17 @@ func EnvDivisionData(c *gin.Context) {
 	}
 }
 
+// EnvDivisionDataSimple 获取变量简易数据
+func EnvDivisionDataSimple(c *gin.Context) {
+	resCode, data := logic.EnvDivisionDataSimple()
+
+	switch resCode {
+	case res.CodeSuccess:
+		// 查询成功
+		res.ResSuccess(c, data)
+	}
+}
+
 // EnvAdd 变量新增
 func EnvAdd(c *gin.Context) {
 	// 获取参数
