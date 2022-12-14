@@ -297,7 +297,16 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 		// 合并模式
 		zap.L().Debug("上传变量：合并模式")
 		if EnvID != -1 {
-			vv := edr.Data[EnvID].Value + envData.EnvMerge + cache2
+			vv := ""
+			sList := strings.Split(edr.Data[EnvID].Value, "\n")
+			if len(sList) != 1 {
+				for _, str := range sList {
+					vv += vv + "\\n" + str
+				}
+				vv += vv + "\\n" + cache2
+			} else {
+				vv = edr.Data[EnvID].Value + envData.EnvMerge + cache2
+			}
 			if edr.Data[EnvID].OldID != "" {
 				uploadData = `{"_id": "` + edr.Data[EnvID].OldID + `", "value": "` + vv + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}`
 			} else {
