@@ -214,7 +214,8 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 
 	// 检查重复提交
 	var IsRepeat bool
-	if IsRepeat = CheckRepeat(edr, envData, cache2); IsRepeat != false {
+	var EnvID int
+	if IsRepeat, EnvID = CheckRepeat(edr, envData, cache2); IsRepeat != false {
 		return res.CodeEnvError, "禁止提交重复数据"
 	}
 
@@ -244,8 +245,7 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 		// 新建模式
 		zap.L().Debug("[上传变量]上传变量：新建模式")
 		uploadData = `[{"value": "` + cache2 + `","name": "` + p.EnvName + `","remarks": "` + user.Username + `"}]`
-	} else {
-		// else if envData.EnvMode == 2
+	} else if envData.EnvMode == 2 {
 		// 更新模式
 		zap.L().Debug("[上传变量]上传变量：更新模式")
 		/*
@@ -293,30 +293,27 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 			IsNew = true
 			uploadData = `[{"value": "` + cache2 + `","name": "` + p.EnvName + `","remarks": "` + user.Username + `"}]`
 		}
+	} else {
+		// 合并模式
+		zap.L().Debug("上传变量：合并模式")
+		if EnvID != -1 {
+			vv := edr.Data[EnvID].Value + envData.EnvMerge + cache2
+			if edr.Data[EnvID].OldID != "" {
+				uploadData = `{"_id": "` + edr.Data[EnvID].OldID + `", "value": "` + vv + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}`
+			} else {
+				uploadData = `{"id": "` + strconv.Itoa(edr.Data[EnvID].ID) + `", "value": "` + vv + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}`
+			}
+		} else {
+			uploadData = `[{"value": "` + cache2 + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}`
+		}
 	}
-	//else {
-	//	// 合并模式
-	//	//zap.L().Debug("上传变量：合并模式")
-	//	//if QCount != -1 {
-	//	//	vv := t.Data[QCount].Value + eData.Division + s2
-	//	//	p.EnvRemarks = t.Data[QCount].Name
-	//	//	if t.Data[QCount].OId != "" {
-	//	//		data = `{"_id": "` + t.Data[QCount].OId + `", "value": "` + vv + `","name": "` + p.EnvName + `","remarks": "` + p.EnvRemarks + `"}`
-	//	//	} else {
-	//	//		data = `{"id": "` + strconv.Itoa(t.Data[QCount].ID) + `", "value": "` + vv + `","name": "` + p.EnvName + `","remarks": "` + p.EnvRemarks + `"}`
-	//	//	}
-	//	//} else {
-	//	//	data = `[{"value": "` + s2 + `","name": "` + p.EnvName + `"}]`
-	//	//}
-	//}
 
 	var r []byte
 	if envData.EnvMode == 1 {
 		// 新建模式(POST)
 		zap.L().Debug("新建模式(POST)")
 		r, err = requests.Requests("POST", url, uploadData, serverData.PanelToken)
-	} else {
-		// else if eData.Mode == 2 {
+	} else if envData.EnvMode == 2 {
 		// 更新模式(PUT)
 		zap.L().Debug("更新模式(PUT)")
 		if IsNew == false {
@@ -343,16 +340,15 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 				r, err = requests.Requests("POST", url, uploadData, serverData.PanelToken)
 			}
 		}
+	} else {
+		// 合并模式(PUT)
+		if EnvID != -1 {
+			r, err = requests.Requests("PUT", url, uploadData, serverData.PanelToken)
+		} else {
+			// 面板不存在合并模式变量时(POST)
+			r, err = requests.Requests("POST", url, uploadData, serverData.PanelToken)
+		}
 	}
-	//else {
-	//	// 合并模式(PUT)
-	//	if QCount != -1 {
-	//		r, err = requests.Requests("PUT", url, data, sData.Token)
-	//	} else {
-	//		// 面板不存在合并模式变量时(POST)
-	//		r, err = requests.Requests("POST", url, data, sData.Token)
-	//	}
-	//}
 
 	if err != nil {
 		return res.CodeServerBusy, ""
@@ -421,12 +417,12 @@ func CalculateQuantity(id, mode int, name string) (res.ResCode, model.EnvDataRes
 }
 
 // CheckRepeat 校验是否重复上传
-func CheckRepeat(p model.EnvDataResult, data model.Env, env string) bool {
+func CheckRepeat(p model.EnvDataResult, data model.Env, env string) (bool, int) {
+	var count = 0
 	// 通过变量名获取上传模式
-	// 新建模式需要校验重复上传，更新模式无需
 	if data.EnvMode == 1 {
-		// 新建模式
-		var count = 0
+		// 新建模式需要校验重复上传，更新模式无需
+		count = 0
 		for i := 0; i < len(p.Data); i++ {
 			if p.Data[i].Value == env {
 				count++
@@ -434,36 +430,37 @@ func CheckRepeat(p model.EnvDataResult, data model.Env, env string) bool {
 			}
 		}
 		if count != 0 {
-			return true
+			return true, count
+		}
+	} else if data.EnvMode == 3 {
+		// 合并模式，遍历所有表获取合并表
+		count = 0
+		if len(p.Data) == 0 {
+			return false, count
+		}
+		for i := 0; i < len(p.Data); i++ {
+			if p.Data[i].Name == data.EnvName {
+				count = i
+				break
+			}
+		}
+		// 判断面板无此变量
+		if count == 0 {
+			return false, -1
+		}
+
+		// 根据分隔符处理面板上的数据
+		var up = 0
+		envList := strings.Split(p.Data[count].Value, data.EnvMerge)
+		for i := 0; i < len(envList); i++ {
+			if envList[i] == env {
+				up++
+				break
+			}
+		}
+		if up != 0 {
+			return true, count
 		}
 	}
-	//else {
-	//	// 合并模式
-	//	var count = 0
-	//	// 遍历所有表获取合并表
-	//	if len(p.Data) == 0 {
-	//		return false, QCount
-	//	}
-	//	for i := 0; i < len(p.Data); i++ {
-	//		if p.Data[i].Name == name {
-	//			count = i
-	//			QCount = i
-	//			break
-	//		}
-	//	}
-	//
-	//	// 根据分隔符处理面板上的数据
-	//	var up = 0
-	//	envList := strings.Split(p.Data[count].Value, data.Division)
-	//	for i := 0; i < len(envList); i++ {
-	//		if envList[i] == env {
-	//			up++
-	//			break
-	//		}
-	//	}
-	//	if up != 0 {
-	//		return true, 0
-	//	}
-	//}
-	return false
+	return false, count
 }

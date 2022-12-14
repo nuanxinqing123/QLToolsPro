@@ -16,6 +16,7 @@ type Env struct {
 	EnvQuantity     int    // 环境变量数量上限
 	EnvRegex        string // 环境变量匹配正则
 	EnvMode         int    // 环境变量模式[1：新建模式、2：更新模式、3：合并模式]
+	EnvMerge        string // 合并模式分隔符
 	EnvUpdate       string // 环境变量更新匹配正则（更新模式）
 	EnvIsPlugin     bool   // 环境变量是否使用插件
 	EnvPluginName   string // 绑定的插件名称
