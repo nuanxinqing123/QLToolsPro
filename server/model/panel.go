@@ -95,6 +95,8 @@ type OnlineServer struct {
 		EnvData []struct {
 			// 变量名称
 			EnvName string `json:"EnvName"`
+			// 变量备注
+			EnvRemarks string `json:"EnvRemarks"`
 			// 变量剩余限额
 			EnvQuantity int `json:"EnvQuantity"`
 			// 变量提示内容
