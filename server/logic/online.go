@@ -313,7 +313,7 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 				uploadData = `{"id": "` + strconv.Itoa(edr.Data[EnvID].ID) + `", "value": "` + vv + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}`
 			}
 		} else {
-			uploadData = `[{"value": "` + cache2 + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}`
+			uploadData = `[{"value": "` + cache2 + `","name": "` + p.EnvName + `","remarks": "` + envData.EnvRemarks + `"}]`
 		}
 	}
 
@@ -351,6 +351,7 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 		}
 	} else {
 		// 合并模式(PUT)
+		zap.L().Debug("【合并模式】上传内容：" + uploadData)
 		if EnvID != -1 {
 			r, err = requests.Requests("PUT", url, uploadData, serverData.PanelToken)
 		} else {

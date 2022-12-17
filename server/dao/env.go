@@ -33,12 +33,12 @@ func GetEnvDataPage() int64 {
 // EnvAdd 创建Env信息
 func EnvAdd(data *model.EnvAdd) error {
 	p := &model.Env{
-		EnvName:     data.EnvName,
-		EnvRemarks:  data.EnvRemarks,
-		EnvQuantity: data.EnvQuantity,
-		EnvRegex:    data.EnvRegex,
-		EnvMode:     data.EnvMode,
-		//EnvMerge:      data.EnvMerge,
+		EnvName:       data.EnvName,
+		EnvRemarks:    data.EnvRemarks,
+		EnvQuantity:   data.EnvQuantity,
+		EnvRegex:      data.EnvRegex,
+		EnvMode:       data.EnvMode,
+		EnvMerge:      data.EnvMerge,
 		EnvUpdate:     data.EnvUpdate,
 		EnvIsPlugin:   data.EnvIsPlugin,
 		EnvPluginName: data.EnvPluginName,
@@ -62,6 +62,7 @@ func EnvUpdate(data *model.EnvUpdate) error {
 	e.EnvIsCharging = data.EnvIsCharging
 	e.EnvNeedIntegral = data.EnvNeedIntegral
 	e.EnvTips = data.EnvTips
+	e.EnvMerge = data.EnvMerge
 	return DB.Save(&e).Error
 }
 

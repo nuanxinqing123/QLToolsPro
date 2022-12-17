@@ -12,6 +12,7 @@ import (
 	"QLToolsPro/utils/panel"
 	res "QLToolsPro/utils/response"
 	val "QLToolsPro/utils/validator"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
@@ -96,6 +97,7 @@ func EnvUpdate(c *gin.Context) {
 	}
 
 	// 处理业务
+	zap.L().Debug(fmt.Sprintln(p))
 	resCode, msg := logic.EnvUpdate(p)
 	switch resCode {
 	case res.CodeEnvError:

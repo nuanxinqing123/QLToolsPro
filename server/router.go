@@ -161,6 +161,8 @@ func Setup() *gin.Engine {
 				admin.POST("system/software/update", controllers.SystemSoftwareUpdate)
 				// 关闭/重启系统
 				admin.GET("system/state", controllers.SystemState)
+				// 查询任务
+				admin.GET("task/data/query", controllers.TaskDataQuery)
 			}
 
 			// 面板管理

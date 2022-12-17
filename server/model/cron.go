@@ -5,10 +5,10 @@ import "gorm.io/gorm"
 // Task 任务字段表
 type Task struct {
 	gorm.Model
-	Name   string
-	Cron   string
-	Config string
-	State  bool
+	Name   string `json:"name,omitempty"`
+	Cron   string `json:"cron,omitempty"`
+	Config string `json:"config,omitempty"`
+	State  bool   `json:"state"`
 }
 
 // TaskPageData Task分页数据

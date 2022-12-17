@@ -89,3 +89,13 @@ func SystemState(c *gin.Context) {
 	}
 	res.ResSuccess(c, "系统将在三秒后执行操作")
 }
+
+// TaskDataQuery 查询任务
+func TaskDataQuery(c *gin.Context) {
+	tp := c.Query("type")
+
+	data := logic.TaskDataQuery(tp)
+
+	// 查询成功
+	res.ResSuccess(c, data)
+}

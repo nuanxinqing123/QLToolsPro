@@ -2,6 +2,7 @@ package logic
 
 import (
 	_const "QLToolsPro/server/const"
+	"QLToolsPro/server/dao"
 	"QLToolsPro/server/model"
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
@@ -108,4 +109,9 @@ func doUpdate(url string) error {
 		return err
 	}
 	return nil
+}
+
+// TaskDataQuery 查询任务
+func TaskDataQuery(tp string) model.Task {
+	return dao.GetCronTask(tp)
 }

@@ -21,6 +21,13 @@ func GetAllCronTask() []model.Task {
 	return t
 }
 
+// GetCronTask 获取定时任务
+func GetCronTask(s string) model.Task {
+	var t model.Task
+	DB.Where("name = ?", s).First(&t)
+	return t
+}
+
 // CronTaskDivisionData 分页查询
 func CronTaskDivisionData(page, q int) []model.Task {
 	var cdk []model.Task
