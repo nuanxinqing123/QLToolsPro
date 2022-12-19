@@ -381,7 +381,7 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 	// 扣除积分
 	if envData.EnvIsCharging == 3 {
 		zap.L().Debug("扣除前：" + strconv.FormatInt(user.Integral, 10))
-		user.Integral = user.Integral - int64(envData.EnvNeedIntegral)
+		user.Integral -= int64(envData.EnvNeedIntegral)
 		zap.L().Debug("扣除后：" + strconv.FormatInt(user.Integral, 10))
 		go dao.UpdateUserIntegral(user)
 	}

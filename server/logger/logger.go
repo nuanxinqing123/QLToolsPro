@@ -42,6 +42,9 @@ func Init() (err error) {
 	)
 	encoder := getEncoder()
 	var l = new(zapcore.Level)
+	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.InfoLevel
+	})
 	errorLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapcore.ErrorLevel
 	})
@@ -69,7 +72,7 @@ func Init() (err error) {
 		)
 	} else {
 		core = zapcore.NewTee(
-			zapcore.NewCore(encoder, writeSyncer, l),               // INFO
+			zapcore.NewCore(encoder, writeSyncer, infoLevel),       // INFO
 			zapcore.NewCore(encoder, writeSyncerError, errorLevel), // Error
 			zapcore.NewCore(encoder, writeSyncerWarn, warnLevel),   // Warn
 		)
