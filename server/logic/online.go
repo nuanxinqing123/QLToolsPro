@@ -15,11 +15,12 @@ import (
 	"QLToolsPro/utils/requests"
 	res "QLToolsPro/utils/response"
 	"fmt"
-	"go.uber.org/zap"
 	"regexp"
 	"strconv"
 	"strings"
 	time2 "time"
+
+	"go.uber.org/zap"
 )
 
 // OnlineServer 获取在线服务
@@ -301,9 +302,9 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 			sList := strings.Split(edr.Data[EnvID].Value, "\n")
 			if len(sList) != 1 {
 				for _, str := range sList {
-					vv += vv + "\\n" + str
+					vv += str + "\\n"
 				}
-				vv += vv + "\\n" + cache2
+				vv = vv + "\\n" + cache2
 			} else {
 				vv = edr.Data[EnvID].Value + envData.EnvMerge + cache2
 			}
@@ -372,6 +373,7 @@ func OnlineUploadData(uid any, p *model.OnlineEnvUpload) (res.ResCode, string) {
 
 	if token.Code >= 400 && token.Code < 500 {
 		// 尝试更新Token
+		zap.L().Warn("上传错误警告：" + token.Message)
 		go panel.GetPanelToken(serverData.PanelURL, serverData.PanelClientID, serverData.PanelClientSecret)
 		return res.CodeEnvError, "发生一点小意外，请重新提交"
 	} else if token.Code >= 500 {
