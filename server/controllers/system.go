@@ -7,6 +7,7 @@ import (
 	val "QLToolsPro/utils/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"os/exec"
 	"strconv"
@@ -46,6 +47,12 @@ func SystemSoftwareUpdate(c *gin.Context) {
 		return
 	}
 
+	// 演示版标签
+	if viper.GetString("app.mode") == "demoPro" {
+		res.ResErrorWithMsg(c, res.CodeServerBusy, "演示版禁止操作")
+		return
+	}
+
 	resCode, msg := logic.SystemSoftwareUpdate(p)
 	switch resCode {
 	case res.CodeSystemError:
@@ -58,6 +65,12 @@ func SystemSoftwareUpdate(c *gin.Context) {
 
 // SystemState 关闭/重启系统
 func SystemState(c *gin.Context) {
+	// 演示版标签
+	if viper.GetString("app.mode") == "demoPro" {
+		res.ResErrorWithMsg(c, res.CodeServerBusy, "演示版禁止操作")
+		return
+	}
+
 	// shutdown：关闭、restart：重启
 	t := c.Query("type")
 	if t == "shutdown" {

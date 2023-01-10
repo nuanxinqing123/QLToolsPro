@@ -215,7 +215,7 @@ func ContainerCronBackup(c *gin.Context) {
 
 	// 演示版标签
 	if viper.GetString("app.mode") == "demoPro" {
-		res.ResSuccess(c, "演示版禁止操作")
+		res.ResErrorWithMsg(c, res.CodeServerBusy, "演示版禁止操作")
 		return
 	}
 
