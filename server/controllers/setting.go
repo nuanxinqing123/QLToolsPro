@@ -13,6 +13,7 @@ import (
 	val "QLToolsPro/utils/validator"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -44,6 +45,12 @@ func SaveSettings(c *gin.Context) {
 
 		// 翻译错误
 		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 演示版标签
+	if viper.GetString("app.mode") == "demoPro" {
+		res.ResSuccess(c, "演示版禁止操作")
 		return
 	}
 

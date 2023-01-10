@@ -136,11 +136,6 @@ func main() {
 	fmt.Println(" ")
 	zap.L().Info("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
 
-	//if err := endless.ListenAndServe(fmt.Sprintf(":%d", viper.GetInt("app.port")), r); err != nil {
-	//	log.Fatalf("listen: %s\n", err)
-	//}
-	//log.Println("Server exiting")
-
 	// 启动服务
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", viper.GetInt("app.port")),
@@ -170,25 +165,6 @@ func main() {
 	}
 
 	zap.L().Info("Service has been shut down")
-
-	// Linux
-	//zap.L().Debug("进程PID：" + strconv.Itoa(syscall.Getpid()))
-	//flag.Parse()
-	//
-	//listener, err := reload.GetListener(srv.Addr)
-	//if err != nil {
-	//	log.Println(err)
-	//}
-	//
-	//var s = reload.NewService(listener)
-	//go func() {
-	//	err = srv.Serve(listener)
-	//	if err != nil {
-	//		log.Println(err)
-	//	}
-	//}()
-	//
-	//s.Start()
 }
 
 // IFPlugin 判断并自动创建插件文件夹

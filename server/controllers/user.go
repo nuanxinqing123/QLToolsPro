@@ -15,6 +15,7 @@ import (
 	"QLToolsPro/utils/wxpusher"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -276,6 +277,12 @@ func UserInformationUpdate(c *gin.Context) {
 		return
 	}
 
+	// 演示版标签
+	if viper.GetString("app.mode") == "demoPro" {
+		res.ResSuccess(c, "演示版禁止操作")
+		return
+	}
+
 	// 处理业务
 	resCode := logic.UserInformationUpdate(p)
 	switch resCode {
@@ -302,6 +309,12 @@ func UserInformationDelete(c *gin.Context) {
 
 		// 翻译错误
 		res.ResErrorWithMsg(c, res.CodeInvalidParam, val.RemoveTopStruct(errs.Translate(val.Trans)))
+		return
+	}
+
+	// 演示版标签
+	if viper.GetString("app.mode") == "demoPro" {
+		res.ResSuccess(c, "演示版禁止操作")
 		return
 	}
 

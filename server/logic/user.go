@@ -129,6 +129,13 @@ func SignUp(p *model.UserSignUp) (res.ResCode, string) {
 		user.IsAdmin = true
 	}
 
+	// 演示版标签
+	if viper.GetString("app.mode") == "demoPro" {
+		if c != 0 {
+			return res.CodeRegisterError, "演示版禁止注册账号"
+		}
+	}
+
 	// 添加赠送积分
 	integral, _ := dao.GetSetting("regIntegral")
 	i, _ := strconv.Atoi(integral.Value)
@@ -168,6 +175,19 @@ func SignIn(p *model.UserSignIn, RemoteIP string) (res.ResCode, string) {
 		if user.Password != Sha1.Sha1(oPassword) {
 			return res.CodeLoginError, "密码错误"
 		} else {
+
+			// 演示版标签
+			if viper.GetString("app.mode") == "demoPro" {
+				// 密码正确, 返回生成的Token（userSecret：密码前六位）
+				token, err := jwt.GenToken(user.UserID, user.Password[:6])
+				if err != nil {
+					zap.L().Error("An error occurred in token generation, err:", zap.Error(err))
+					return res.CodeServerBusy, "服务繁忙"
+				}
+
+				return res.CodeSuccess, token
+			}
+
 			// 密码正确, 校验是否异地登录
 			if user.LoginIP != "" {
 				b1, b2 := CheckIf(user.LoginIP, RemoteIP)
