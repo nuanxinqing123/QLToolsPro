@@ -17,14 +17,15 @@ import (
 	"QLToolsPro/utils/snowflake"
 	"QLToolsPro/utils/timeTools"
 	"QLToolsPro/utils/wxpusher"
-	"github.com/mojocn/base64Captcha"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
 	"image/color"
 	"math/rand"
 	"strconv"
 	time2 "time"
 	"unicode/utf8"
+
+	"github.com/mojocn/base64Captcha"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 // 设置自带的store

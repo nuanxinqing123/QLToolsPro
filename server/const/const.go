@@ -6,4 +6,4 @@ var (
 )
 
 // LocVersion 本地版本
-const LocVersion = "1.7"
+const LocVersion = "1.8"
