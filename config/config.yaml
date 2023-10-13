@@ -5,26 +5,9 @@ app:
   # 运行端口
   port: 6600
 
-# ======================================= 授权设置区域 ===========================================
-# 授权购买地址：https://pay.6b7.org
-# 授权激活地址：https://licence.pro.6b7.org
-# 填写注册的账户信息 [username: 用户名、password：密码、aqCode：安全码]
-# 安全码可以自定义设置，主要目的是在授权中心做验证
-licence:
-  username: "nuanxinqing"
-  password: "136729880"
-  aqCode: "136729880"
-
 # =============== 以下内容修改无需重启程序 ===================
 # ======================================= WxPusher 通知设置区域 ===========================================
 # 此处填你申请的 appToken. 官方文档：https://wxpusher.zjiecode.com/docs
 # WP_APP_TOKEN 可在管理台查看: https://wxpusher.zjiecode.com/admin/main/app/appToken
 wxpusher:
-  wp_app_token: "AT_6c8etY8HAOqJEQVrpYkmneet4gxFXdN5"
-
-# ======================================= 微信小程序设置区域 ===========================================
-wechat_applet:
-  # 小程序 appid
-  appid: "wx75c058d38a81a2fd"
-  # 小程序 appSecret
-  secret: "4fce7ded4778265f1a5a0a1f9edca366"
+  wp_app_token: ""

@@ -12,13 +12,12 @@ import (
 	"QLToolsPro/server/dao"
 	"QLToolsPro/server/gcache"
 	"QLToolsPro/server/logger"
-	"QLToolsPro/server/middlewares"
 	"QLToolsPro/server/settings"
 	_ "QLToolsPro/utils/daemon"
-	"QLToolsPro/utils/license"
 	"QLToolsPro/utils/snowflake"
 	"QLToolsPro/utils/validator"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -113,9 +112,6 @@ func main() {
 	// 注册路由
 	r := server.Setup()
 
-	// 检查小程序授权
-	middlewares.CheckAppLicence()
-
 	fmt.Println(" ")
 	fmt.Println("  ____  _   _______          _     _____           \n / __ \\| | |__   __|        | |   |  __ \\          \n| |  | | |    | | ___   ___ | |___| |__) | __ ___  \n| |  | | |    | |/ _ \\ / _ \\| / __|  ___/ '__/ _ \\ \n| |__| | |____| | (_) | (_) | \\__ \\ |   | | | (_) |\n \\___\\_\\______|_|\\___/ \\___/|_|___/_|   |_|  \\___/ ")
 	fmt.Println("")
@@ -125,14 +121,6 @@ func main() {
 		fmt.Println("运行模式：Release模式")
 	}
 	fmt.Println("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
-	/* 检查授权 */
-	b, m := license.LoginLicense()
-	if !b {
-		fmt.Println("您的许可状态：" + m)
-		return
-	} else {
-		fmt.Println("您的许可状态：正常, 到期时间：" + m)
-	}
 	fmt.Println(" ")
 	zap.L().Info("监听端口：" + strconv.Itoa(viper.GetInt("app.port")))
 
@@ -149,7 +137,7 @@ func main() {
 
 	// 启动
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("Listten: %s\n", err)
 		}
 	}()

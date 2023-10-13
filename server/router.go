@@ -30,8 +30,6 @@ func Setup() *gin.Engine {
 		if viper.GetString("app.mode") == "" {
 			r.Use(logger.GinLogger(), logger.GinRecovery(true))
 		}
-		// 许可到期检查
-		r.Use(middlewares.LicenseCheck())
 	}
 
 	// 前端静态文件
@@ -71,14 +69,14 @@ func Setup() *gin.Engine {
 			// 账户登录
 			open.POST("user/signin", controllers.SignInHandle)
 			// 小程序登录
-			open.POST("user/applet/login", middlewares.AppAuth(), controllers.AppletLoginHandle)
+			open.POST("user/applet/login", controllers.AppletLoginHandle)
 			// 登录异常-发送验证码
 			open.POST("user/abnormal/code", controllers.UserAbnormalCode)
 			// 登录异常-登录
 			open.POST("user/abnormal/signin", controllers.UserAbnormalSignin)
 			// 找回密码 - 发送验证码
 			open.POST("findpwd/message", controllers.UserFindPwd)
-			// 找回密码 - 修改密码
+			// 找回密码 - 修改密码˚Ω
 			open.PUT("findpwd/repwd", controllers.UserRePwd)
 			// 检查Token是否有效
 			open.POST("check/token", middlewares.UserAuth(), controllers.CheckToken)
